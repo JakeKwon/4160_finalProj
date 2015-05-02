@@ -32,6 +32,7 @@ public class PA3 {
     float quadAngle; // Angle of rotation for the quads
 
     ShaderProgram shader;
+    ShaderProgram asteroid;
 
     public void run() {
 
@@ -76,32 +77,53 @@ public class PA3 {
 //public float intensityX = 1f;
 
     private void initShaders() {
-        // String vertex_shader =
-        //         //"uniform vec3 lightPos;" +
-        //         //"varying float intensityX, intensityY, intensityZ;" +
-        //         "void main () {" +
-        //         "  vec3 normal, lightDir;"+
-        //         "  vec4 diffuse;"+
-        //         "  float NdotL;"+
-                    
-        //         "  normal = normalize(gl_NormalMatrix * gl_Normal);"+
-                    
-        //         "   lightDir = normalize(vec3(gl_LightSource[0].position));"+
-                    
-        //         "   NdotL = max(dot(normal, lightDir), 0.08);"+
-                    
-        //         "   diffuse = gl_FrontMaterial.diffuse * gl_LightSource[0].diffuse;"+
-                    
-        //         "   gl_FrontColor =  NdotL * diffuse;"+
-                    
-        //         "   gl_Position = ftransform();"+
-        //         "}";
+         String asteroid_vertex_shader =
+        		 "varying vec4 specular;" +
+        	        		"void main () {" +
+        	                "	vec3 normal, lightDir, RefDir;" +
+        	                "	vec4 diffuse, ambient, globalAmbient;" +
+        	                "	float NdotL, RdotV;" +
+        	                "	vec3 EyeDir;" +
+        	                	//get normal
+        	                "	normal = normalize(gl_NormalMatrix * gl_Normal);" +
+        	                "	specular = vec4(0,0,0,0);" +
+        	                "	globalAmbient = gl_LightModel.ambient * gl_FrontMaterial.ambient;" +
+        	                	//get light direction
+        	                "	for(int i = 0; i < 4; i++){" +
+        	                "		lightDir = normalize(vec3(gl_ModelViewMatrix * gl_LightSource[i].position));" +
+        	                		//N.L
+        	                "		NdotL = max(dot(normal, lightDir), 0.0);" +
+        	                		//R = 2*N*(N.L) - L
+        	                "		RefDir = 2 * normal * NdotL - lightDir;" +
+        	                	"	EyeDir = normalize(vec3(gl_ModelViewMatrix * vec4(0, 0, 1, 0)));" +
+        	                		//convert to camera space
+        	                "		vec3 pos = vec3(gl_ModelViewMatrix * gl_Vertex);" +
+        	                		//viewing direction
+        					//"		EyeDir = normalize(-pos);" +
+        	                		//(R.V)^200
+        	                "		RdotV = pow(max(dot(RefDir, vec3(EyeDir)), 0.0), 200);" +
+        	                
+        	                "		diffuse += gl_FrontMaterial.diffuse * gl_LightSource[i].diffuse * NdotL;" +
+        	                "		ambient += gl_LightSource[i].ambient;" +
+        	                "		if(NdotL > 0.0){" +
+        	                "			specular += gl_LightSource[i].specular * RdotV;" +
+        	                " 		}" +
+        	                "	}" +
+        	                //"	else{" +
+        	                //"		gl_FrontColor = ambient + globalAmbient + diffuse;" +
+        	                //" 	}" +
+        	                "	gl_FrontColor = ambient + globalAmbient + diffuse + specular;" +
+        	                //"	gl_TexCoord[0] = vec4(gl_MultiTexCoord0);" +
+        	                "	gl_Position = ftransform();" +
+        	                "}";
         
-        // String fragment_shader =
-        //         "varying float intensityX, intensityY, intensityZ;" +
-        //         "void main () {" +
-        //         "  gl_FragColor = gl_Color;" +
-        //         "}";
+         String asteroid_fragment_shader =
+        		 "varying vec4 specular;" +
+        	        		"void main () {" +
+        	        		"	vec4 color =  gl_Color + specular;" +
+
+        	                "	gl_FragColor = color;" + //gl_Color
+        	                "}";
         String vertex_shader =
             "    varying vec4 diffuse,ambientGlobal,ambient;"+
             "    varying vec3 normal,lightDir,halfVector;"+
@@ -149,6 +171,7 @@ public class PA3 {
 
         try {
             shader = new ShaderProgram(vertex_shader, fragment_shader);
+            asteroid = new ShaderProgram(asteroid_vertex_shader, asteroid_fragment_shader);
         } catch (LWJGLException e) {
             e.printStackTrace();
             System.exit(1);
@@ -217,6 +240,11 @@ public class PA3 {
 renderCylinder(0f, 0f, 0f);
 renderSphere(0f, 0f, 1f);
         shader.end();
+
+    asteroid.begin();
+	Asteroid a = new Asteroid();
+	a.draw(new Vector3f(2 ,2 ,2), 1);
+	asteroid.end();
     }
 
 
