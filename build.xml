@@ -52,7 +52,25 @@
 
     <!-- ========================================================================= -->   
     <!--                               Build Scheduler                             -->   
-    <!-- ========================================================================= -->   
+    <!-- ========================================================================= -->
+
+    <target name="build.octree" depends="init">
+        <javac srcdir="${src.dir}" destdir="${build.classdir}" debug="${debug}"
+            optimize="on" verbose="${verbose}" includeantruntime="false">
+            <classpath refid="class.path" />
+        </javac>
+    </target>
+
+    <target name="run_oct" if="isUnix">
+        <java classname="w4160.Test" fork="true">
+            <sysproperty key="java.library.path" path="lwjgl-2.9.3/native/linux" />
+            <classpath>
+                <path refid="class.path"/>
+                <pathelement path="${build.classdir}"/>
+            </classpath>
+        </java>
+    </target>
+
     <target name="build.pa3" depends="init">
         <javac srcdir="${src.dir}" destdir="${build.classdir}" debug="${debug}"
             optimize="on" verbose="${verbose}" includeantruntime="false">
@@ -91,4 +109,5 @@
     </target>
 
     <target name="run" depends="build.pa3, run_win, run_unix, run_mac"/>
+    <target name="octree" depends="build.octree, run_oct"/>
 </project>
