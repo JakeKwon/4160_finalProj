@@ -29,7 +29,9 @@ public class Game {
 
     long lastFrameTime; // used to calculate delta
     
-    List<Asteroid> asteroids;
+    ArrayList<Asteroid> asteroids;
+    Octree octree;
+    Vector3f player_pos;
 
     public void run() {
 
@@ -68,15 +70,40 @@ public class Game {
         GL11.glEnable(GL11.GL_DEPTH_TEST); // Enables Depth Testing
         GL11.glDepthFunc(GL11.GL_LEQUAL); // The Type Of Depth Test To Do
         GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST); // Really Nice Perspective Calculations
-        Camera.create();        
+        Camera.create();
     }
 
     private void initObjects() {
         asteroids = new ArrayList<Asteroid>();
-        asteroids.add(new Asteroid(10,10,10, 0.1f, new Vector3f(-1,-1,-1)));
+        octree = new Octree(0, new Vector3f(0, 0, 0), 100, "#");
+
+        // Direction towards player
+        player_pos = new Vector3f(0, 0, 0);
+
+        // Asteroid Positions
+        Vector3f a1 = new Vector3f(0,80,80);
+        Vector3f a2 = new Vector3f(0,0,80);
+
+        // Astroid Directions
+        Vector3f a1_to_player = new Vector3f();
+        Vector3f.sub(player_pos, a1, a1_to_player);
+
+        Vector3f a2_to_player = new Vector3f();
+        Vector3f.sub(player_pos, a2, a2_to_player);
+
+        octree.insert(new Asteroid(a1, 0.1f, a1_to_player));
+        octree.insert(new Asteroid(a2, 0.1f, a2_to_player));
     }
     
     private void updateLogic(int delta) {
+        asteroids.clear();
+        octree.get_elements(asteroids);
+        octree.clear();
+        for (Asteroid a : asteroids) {
+            a.Move();
+            octree.insert(a);
+        }
+        octree.traverse();
     }
 
 
@@ -84,13 +111,13 @@ public class Game {
 
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
         GL11.glLoadIdentity(); // Reset The View
-        GL11.glTranslatef(0.0f, 0.0f, -7.0f); // Move Right And Into The Screen
+        GL11.glTranslatef(0.0f, 0.0f, 0.0f); // Move Right And Into The Screen
 
         Camera.apply();
 
         for (Asteroid a : asteroids) {
-            a.Move();
             a.Draw();
+            System.out.println("drawn");
         }
     }
 
@@ -193,7 +220,7 @@ public class Game {
 
         public static void create() {
             pos = new Vector3f(0, 0, 0);
-            rotation = new Vector3f(0, 0, 0);
+            rotation = new Vector3f(0, 180, 0);
         }
 
         public static void apply() {

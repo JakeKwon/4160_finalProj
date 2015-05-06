@@ -9,7 +9,7 @@ import org.lwjgl.util.vector.Vector3f;
 public class Octree 
 {
     private int MAX_OBJECTS = 1;
-    private int MAX_LEVELS = 1000;
+    private int MAX_LEVELS = 100;
 
     private int level;
     private ArrayList<Asteroid> asteroids;
@@ -29,6 +29,30 @@ public class Octree
         this.children = new Octree[8];
         this.size = in_size;
         this.index = in_index;
+    }
+
+    /*
+     * Get all the elements in the octree and store in objects.
+     * This includes the elements of all its subtrees.
+    */
+    void get_elements(ArrayList<Asteroid> objects) {
+        for(Asteroid a : asteroids)
+            objects.add(a);
+        if (children[0] != null)
+            for (int i = 0; i < children.length; i++)
+                children[i].get_elements(objects);
+    }
+
+    /*
+    * Clears the octree
+    */
+    public void clear() {
+        asteroids.clear();
+        if (children[0] != null)
+            for (int i = 0; i < children.length; i++) {
+                children[i].clear();
+                children[i] = null;
+            }
     }
 
     /*
@@ -83,7 +107,7 @@ public class Octree
     }
 
     /*
-    * Insert the asteroid into the quadtree. 
+    * Insert the asteroid into the octree. 
     * If the child doesn't have space, it will split
     * and all of its asteroids to its own children.
     */
@@ -116,7 +140,7 @@ public class Octree
         Gets all neighbors of element c in the radius rad.
     */
     public ArrayList<Asteroid> get_inRange(Vector3f position, float rad) {
-        // Maintain a stack of all quadtrees whose elements will be compared
+        // Maintain a stack of all octrees whose elements will be compared
         Stack<Octree> s = new Stack<Octree>();
         ArrayList<Asteroid> neighbors = new ArrayList<Asteroid>();
 
@@ -153,7 +177,7 @@ public class Octree
     }
 
     /*
-     * Returns true if quadtree isn't split.
+     * Returns true if octree isn't split.
      * (Doesn't have children)
      */
     private boolean isLeaf() {
@@ -179,7 +203,7 @@ public class Octree
     }
 
     /*
-     * Return true if this quadtree intersects with the passed cube.
+     * Return true if this octree intersects with the passed cube.
      */
     boolean intersects(Vector3f position, float length) {
         // If A's left face is to the right of the B's right face
