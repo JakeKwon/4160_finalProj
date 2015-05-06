@@ -8,17 +8,17 @@ public class Test {
 
 		Octree octree = new Octree(0, new Vector3f(0,0,0), 100, "#");
 
-		Ast a1 = new Ast(10, 10, 10);
-		Ast a2 = new Ast(40, 40, 40);
+		Asteroid a1 = new Asteroid(10, 10, 10);
+		Asteroid a2 = new Asteroid(40, 40, 40);
 
-		Ast b = new Ast(25, 25, 75);
-		Ast c = new Ast(75, 25, 25);
-		Ast d = new Ast(75, 25, 75);
+		Asteroid b = new Asteroid(25, 25, 75);
+		Asteroid c = new Asteroid(75, 25, 25);
+		Asteroid d = new Asteroid(75, 25, 75);
 
-		Ast e = new Ast(25, 75, 25);
-		Ast f = new Ast(25, 75, 75);
-		Ast g = new Ast(75, 75, 25);
-		Ast h = new Ast(75, 75, 75);
+		Asteroid e = new Asteroid(25, 75, 25);
+		Asteroid f = new Asteroid(25, 75, 75);
+		Asteroid g = new Asteroid(75, 75, 25);
+		Asteroid h = new Asteroid(75, 75, 75);
 
 		octree.insert(a1);
 		octree.insert(a2);
@@ -31,9 +31,9 @@ public class Test {
 		octree.insert(g);
 		octree.insert(h);
 
-		ArrayList<Ast> n = octree.get_inRange(new Vector3f(10, 10, 10), 1);
+		ArrayList<Asteroid> n = octree.get_inRange(new Vector3f(10, 10, 10), 1);
 
-		for(Ast as : n)
+		for(Asteroid as : n)
 			System.out.println(as);
 	}
 }

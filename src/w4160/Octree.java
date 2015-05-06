@@ -11,7 +11,7 @@ public class Octree
     private int MAX_LEVELS = 1000;
 
     private int level;
-    private ArrayList<Ast> asteroids;
+    private ArrayList<Asteroid> asteroids;
     private Octree[] children;
 
     private Vector3f origin;
@@ -23,7 +23,7 @@ public class Octree
      */
     public Octree(int in_level, Vector3f in_origin, float in_size, String in_index) {
         this.level = in_level;
-        this.asteroids = new ArrayList<Ast>();
+        this.asteroids = new ArrayList<Asteroid>();
         this.origin = new Vector3f(in_origin);
         this.children = new Octree[8];
         this.size = in_size;
@@ -86,7 +86,7 @@ public class Octree
     * If the child doesn't have space, it will split
     * and all of its asteroids to its own children.
     */
-    public void insert(Ast ast) {
+    public void insert(Asteroid ast) {
         if (children[0] != null) {
             int index = getIndex(ast.getPos());
             children[index].insert(ast);
@@ -114,10 +114,10 @@ public class Octree
     /*
         Gets all neighbors of element c in the radius rad.
     */
-    public ArrayList<Ast> get_inRange(Vector3f position, float rad) {
+    public ArrayList<Asteroid> get_inRange(Vector3f position, float rad) {
         // Maintain a stack of all quadtrees whose elements will be compared
         Stack<Octree> s = new Stack<Octree>();
-        ArrayList<Ast> neighbors = new ArrayList<Ast>();
+        ArrayList<Asteroid> neighbors = new ArrayList<Asteroid>();
 
         // Push root onto stack
         s.push(this);
@@ -127,7 +127,7 @@ public class Octree
 
             // If T is a leaf, check if the elements in it lie in the radius
             if (T.isLeaf()) {
-                for (Ast a : T.asteroids) {
+                for (Asteroid a : T.asteroids) {
                     if(get_distance(position, a.getPos()) < rad)
                         neighbors.add(a);
                 }
@@ -136,7 +136,7 @@ public class Octree
                 for(int i=0; i < T.children.length; i++) {
                     Octree C = T.children[i];
                     if (C.isLeaf()) {
-                        for (Ast a : C.asteroids) {
+                        for (Asteroid a : C.asteroids) {
                             if(get_distance(position, a.getPos()) < rad)
                                 neighbors.add(a);
                         }
@@ -165,7 +165,7 @@ public class Octree
      */
     public void traverse() {
         // print out elements
-        for(Ast a : asteroids) {
+        for(Asteroid a : asteroids) {
             System.out.print(a);
             System.out.println(" at Index: " + index);
             System.out.println(" at Level: " + level);
