@@ -71,7 +71,7 @@
         </java>
     </target>
 
-    <target name="build.pa3" depends="init">
+    <target name="build.game" depends="init">
         <javac srcdir="${src.dir}" destdir="${build.classdir}" debug="${debug}"
             optimize="on" verbose="${verbose}" includeantruntime="false">
             <classpath refid="class.path" />
@@ -79,7 +79,7 @@
     </target>
 
     <target name="run_win" if="isWindows">
-        <java classname="w4160.PA3" fork="true">
+        <java classname="w4160.Game" fork="true">
             <sysproperty key="java.library.path" path="lwjgl-2.9.3/native/windows" />
             <classpath>
                 <path refid="class.path"/>
@@ -89,7 +89,7 @@
     </target>
 
     <target name="run_unix" if="isUnix">
-        <java classname="w4160.PA3" fork="true">
+        <java classname="w4160.Game" fork="true">
             <sysproperty key="java.library.path" path="lwjgl-2.9.3/native/linux" />
             <classpath>
                 <path refid="class.path"/>
@@ -99,7 +99,7 @@
     </target>
 
     <target name="run_mac" if="isMac">
-        <java classname="w4160.PA3" fork="true">
+        <java classname="w4160.Game" fork="true">
             <sysproperty key="java.library.path" path="lwjgl-2.9.3/native/macosx" />
             <classpath>
                 <path refid="class.path"/>
@@ -108,6 +108,6 @@
         </java>
     </target>
 
-    <target name="run" depends="build.pa3, run_win, run_unix, run_mac"/>
+    <target name="run" depends="build.game, run_win, run_unix, run_mac"/>
     <target name="octree" depends="build.octree, run_oct"/>
 </project>

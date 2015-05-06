@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 import java.io.File;
 import java.io.IOException;
 import java.awt.image.BufferedImage;
-
 import javax.imageio.ImageIO;
 
 import org.lwjgl.LWJGLException;
@@ -17,13 +16,10 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.glu.Sphere;
-import org.lwjgl.util.glu.Cylinder;
 
+public class Game {
 
-public class PA3 {
-
-    String windowTitle = "3D Shapes";
+    String windowTitle = "3D COOL";
     public boolean closeRequested = false;
 
     long lastFrameTime; // used to calculate delta
@@ -31,15 +27,11 @@ public class PA3 {
     float triangleAngle; // Angle of rotation for the triangles
     float quadAngle; // Angle of rotation for the quads
 
-    ShaderProgram shader;
-    ShaderProgram asteroid;
-
     public void run() {
 
         createWindow();
         getDelta(); // Initialise delta timer
         initGL();
-        initShaders();
         
         while (!closeRequested) {
             pollInput();
@@ -74,209 +66,59 @@ public class PA3 {
         Camera.create();        
     }
     
-//public float intensityX = 1f;
-
-    private void initShaders() {
-         String asteroid_vertex_shader =
-        		 "varying vec4 specular;" +
-        	        		"void main () {" +
-        	                "	vec3 normal, lightDir, RefDir;" +
-        	                "	vec4 diffuse, ambient, globalAmbient;" +
-        	                "	float NdotL, RdotV;" +
-        	                "	vec3 EyeDir;" +
-        	                	//get normal
-        	                "	normal = normalize(gl_NormalMatrix * gl_Normal);" +
-        	                "	specular = vec4(0,0,0,0);" +
-        	                "	globalAmbient = gl_LightModel.ambient * gl_FrontMaterial.ambient;" +
-        	                	//get light direction
-        	                "	for(int i = 0; i < 4; i++){" +
-        	                "		lightDir = normalize(vec3(gl_ModelViewMatrix * gl_LightSource[i].position));" +
-        	                		//N.L
-        	                "		NdotL = max(dot(normal, lightDir), 0.0);" +
-        	                		//R = 2*N*(N.L) - L
-        	                "		RefDir = 2 * normal * NdotL - lightDir;" +
-        	                	"	EyeDir = normalize(vec3(gl_ModelViewMatrix * vec4(0, 0, 1, 0)));" +
-        	                		//convert to camera space
-        	                "		vec3 pos = vec3(gl_ModelViewMatrix * gl_Vertex);" +
-        	                		//viewing direction
-        					//"		EyeDir = normalize(-pos);" +
-        	                		//(R.V)^200
-        	                "		RdotV = pow(max(dot(RefDir, vec3(EyeDir)), 0.0), 200);" +
-        	                
-        	                "		diffuse += gl_FrontMaterial.diffuse * gl_LightSource[i].diffuse * NdotL;" +
-        	                "		ambient += gl_LightSource[i].ambient;" +
-        	                "		if(NdotL > 0.0){" +
-        	                "			specular += gl_LightSource[i].specular * RdotV;" +
-        	                " 		}" +
-        	                "	}" +
-        	                //"	else{" +
-        	                //"		gl_FrontColor = ambient + globalAmbient + diffuse;" +
-        	                //" 	}" +
-        	                "	gl_FrontColor = ambient + globalAmbient + diffuse + specular;" +
-        	                //"	gl_TexCoord[0] = vec4(gl_MultiTexCoord0);" +
-        	                "	gl_Position = ftransform();" +
-        	                "}";
-        
-         String asteroid_fragment_shader =
-        		 "varying vec4 specular;" +
-        	        		"void main () {" +
-        	        		"	vec4 color =  gl_Color + specular;" +
-
-        	                "	gl_FragColor = color;" + //gl_Color
-        	                "}";
-        String vertex_shader =
-            "    varying vec4 diffuse,ambientGlobal,ambient;"+
-            "    varying vec3 normal,lightDir,halfVector;"+
-            "    varying float dist;"+
-            
-            "    void main() {"+   
-            "       vec4 position4;"+
-            "       vec3 pos3;"+        
-            "       normal = normalize(gl_NormalMatrix * gl_Normal);"+
-            
-            "       position4 = gl_ModelViewMatrix * gl_Vertex;"+
-            "       pos3 = vec3(gl_LightSource[0].position-position4);"+
-            "       lightDir = normalize(pos3);"+
-            "       dist = length(pos3);"+
-            "       halfVector = normalize(gl_LightSource[0].halfVector.xyz);"+
-            "       diffuse = gl_FrontMaterial.diffuse * gl_LightSource[0].diffuse;"+
-            "       ambient = gl_FrontMaterial.ambient * gl_LightSource[0].ambient;"+
-            "       ambientGlobal = gl_LightModel.ambient * gl_FrontMaterial.ambient;"+
-            "       gl_Position = ftransform();"+
-            "   }";
-        
-        String fragment_shader =
-            "   varying vec4 diffuse,ambientGlobal, ambient;"+
-            "   varying vec3 normal,lightDir,halfVector;"+
-            "   varying float dist;"+
-                
-            "   void main(){"+
-            "       vec3 norm,halfV,viewV,ldir;"+
-            "       float dot1,dot2;"+
-            "       vec4 color = ambientGlobal;"+
-            "       float light;"+
-            "       norm = normalize(normal);"+
-            "       dot1 = max(dot(norm,normalize(lightDir)),0.0);"+
-            
-            "       if (dot1 > 0.0) {"+
-            "           light = 1.0 / (gl_LightSource[0].constantAttenuation + gl_LightSource[0].linearAttenuation * dist + gl_LightSource[0].quadraticAttenuation * dist * dist);"+
-            "           color += light * (diffuse * dot1 + ambient);"+
-            "           halfV = normalize(halfVector);"+
-            "           dot2 = max(dot(norm,halfV),0.0);"+
-            "           color += light * gl_FrontMaterial.specular * gl_LightSource[0].specular * pow(dot2,gl_FrontMaterial.shininess);"+
-            "       }"+
-            
-            "       gl_FragColor = color;"+
-            "   }";
-
-        try {
-            shader = new ShaderProgram(vertex_shader, fragment_shader);
-            asteroid = new ShaderProgram(asteroid_vertex_shader, asteroid_fragment_shader);
-        } catch (LWJGLException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
-    
     private void updateLogic(int delta) {
         triangleAngle += 0.1f * delta; // Increase The Rotation Variable For The Triangles
         quadAngle -= 0.05f * delta; // Decrease The Rotation Variable For The Quads
     }
 
+
     private void renderGL() {
-
-        // start to use shaders
-        shader.begin();
-        float dir = (float)(1./Math.sqrt(3));
-        Vector3f light = new Vector3f(1.0f, 1.0f, 0.4f);
-
-        shader.setUniform3f("lightDir", dir, dir, dir);
-        // shader.setUniform3f("lightPos", 1.0f, 1.0f, 0.4f);
-        // shader.setUniform3f("lightColor", 0.6f, 0.6f, 1f);
 
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
         GL11.glLoadIdentity(); // Reset The View
         GL11.glTranslatef(0.0f, 0.0f, -7.0f); // Move Right And Into The Screen
 
         Camera.apply();
-        // GL11.glBegin(GL11.GL_QUADS); // Start Drawing The Cube
-        // GL11.glColor3f(0.0f, 0.0f, 0.0f); // Set The Color To Green
-        // GL11.glVertex3f(1.0f, 1.0f, -1.0f); // Top Right Of The Quad (Top)
-        // GL11.glVertex3f(-1.0f, 1.0f, -1.0f); // Top Left Of The Quad (Top)
-        // GL11.glVertex3f(-1.0f, 1.0f, 1.0f); // Bottom Left Of The Quad (Top)
-        // GL11.glVertex3f(1.0f, 1.0f, 1.0f); // Bottom Right Of The Quad (Top)
+        GL11.glBegin(GL11.GL_QUADS); // Start Drawing The Cube
+        GL11.glColor3f(0.0f, 1.0f, 0.0f); // Set The Color To Green
+        GL11.glVertex3f(1.0f, 1.0f, -1.0f); // Top Right Of The Quad (Top)
+        GL11.glVertex3f(-1.0f, 1.0f, -1.0f); // Top Left Of The Quad (Top)
+        GL11.glVertex3f(-1.0f, 1.0f, 1.0f); // Bottom Left Of The Quad (Top)
+        GL11.glVertex3f(1.0f, 1.0f, 1.0f); // Bottom Right Of The Quad (Top)
 
-        // //GL11.glColor3f(1.0f, 0.5f, 0.0f); // Set The Color To Orange
-        // GL11.glVertex3f(1.0f, -1.0f, 1.0f); // Top Right Of The Quad (Bottom)
-        // GL11.glVertex3f(-1.0f, -1.0f, 1.0f); // Top Left Of The Quad (Bottom)
-        // GL11.glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Bottom)
-        // GL11.glVertex3f(1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Bottom)
+        GL11.glColor3f(1.0f, 0.5f, 0.0f); // Set The Color To Orange
+        GL11.glVertex3f(1.0f, -1.0f, 1.0f); // Top Right Of The Quad (Bottom)
+        GL11.glVertex3f(-1.0f, -1.0f, 1.0f); // Top Left Of The Quad (Bottom)
+        GL11.glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Bottom)
+        GL11.glVertex3f(1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Bottom)
 
-        // //GL11.glColor3f(1.0f, 0.0f, 0.0f); // Set The Color To Red
-        // GL11.glVertex3f(1.0f, 1.0f, 1.0f); // Top Right Of The Quad (Front)
-        // GL11.glVertex3f(-1.0f, 1.0f, 1.0f); // Top Left Of The Quad (Front)
-        // GL11.glVertex3f(-1.0f, -1.0f, 1.0f); // Bottom Left Of The Quad (Front)
-        // GL11.glVertex3f(1.0f, -1.0f, 1.0f); // Bottom Right Of The Quad (Front)
+        GL11.glColor3f(1.0f, 0.0f, 0.0f); // Set The Color To Red
+        GL11.glVertex3f(1.0f, 1.0f, 1.0f); // Top Right Of The Quad (Front)
+        GL11.glVertex3f(-1.0f, 1.0f, 1.0f); // Top Left Of The Quad (Front)
+        GL11.glVertex3f(-1.0f, -1.0f, 1.0f); // Bottom Left Of The Quad (Front)
+        GL11.glVertex3f(1.0f, -1.0f, 1.0f); // Bottom Right Of The Quad (Front)
 
-        // //GL11.glColor3f(1.0f, 1.0f, 0.0f); // Set The Color To Yellow
-        // GL11.glVertex3f(1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Back)
-        // GL11.glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Back)
-        // GL11.glVertex3f(-1.0f, 1.0f, -1.0f); // Top Right Of The Quad (Back)
-        // GL11.glVertex3f(1.0f, 1.0f, -1.0f); // Top Left Of The Quad (Back)
+        GL11.glColor3f(1.0f, 1.0f, 0.0f); // Set The Color To Yellow
+        GL11.glVertex3f(1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Back)
+        GL11.glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Back)
+        GL11.glVertex3f(-1.0f, 1.0f, -1.0f); // Top Right Of The Quad (Back)
+        GL11.glVertex3f(1.0f, 1.0f, -1.0f); // Top Left Of The Quad (Back)
 
-        // //GL11.glColor3f(0.0f, 0.0f, 1.0f); // Set The Color To Blue
-        // GL11.glVertex3f(-1.0f, 1.0f, 1.0f); // Top Right Of The Quad (Left)
-        // GL11.glVertex3f(-1.0f, 1.0f, -1.0f); // Top Left Of The Quad (Left)
-        // GL11.glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Left)
-        // GL11.glVertex3f(-1.0f, -1.0f, 1.0f); // Bottom Right Of The Quad (Left)
+        GL11.glColor3f(0.0f, 0.0f, 1.0f); // Set The Color To Blue
+        GL11.glVertex3f(-1.0f, 1.0f, 1.0f); // Top Right Of The Quad (Left)
+        GL11.glVertex3f(-1.0f, 1.0f, -1.0f); // Top Left Of The Quad (Left)
+        GL11.glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Left)
+        GL11.glVertex3f(-1.0f, -1.0f, 1.0f); // Bottom Right Of The Quad (Left)
 
-        // GL11.glVertex3f(1.0f, 1.0f, -1.0f); // Top Right Of The Quad (Right)
-        // GL11.glVertex3f(1.0f, 1.0f, 1.0f); // Top Left Of The Quad (Right)
-        // GL11.glVertex3f(1.0f, -1.0f, 1.0f); // Bottom Left Of The Quad (Right)
-        // GL11.glVertex3f(1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Right)
-        // GL11.glEnd(); // Done Drawing The Quad
-    
-        renderSphere(0f, 0f, 0f);
-renderCylinder(0f, 0f, 0f);
-renderSphere(0f, 0f, 1f);
-        shader.end();
+        GL11.glColor3f(1.0f, 0.0f, 1.0f); // Set The Color To Violet
+        GL11.glVertex3f(1.0f, 1.0f, -1.0f); // Top Right Of The Quad (Right)
+        GL11.glVertex3f(1.0f, 1.0f, 1.0f); // Top Left Of The Quad (Right)
+        GL11.glVertex3f(1.0f, -1.0f, 1.0f); // Bottom Left Of The Quad (Right)
+        GL11.glVertex3f(1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Right)
+        GL11.glEnd(); // Done Drawing The Quad
 
-    asteroid.begin();
-	Asteroid a = new Asteroid();
-	a.draw(new Vector3f(2 ,2 ,2), 1);
-	asteroid.end();
     }
 
-
-// private void render() {
-//      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//      glLoadIdentity();
-//      glTranslatef(0.0f, 0.0f, zTranslation);
-//      renderSphere(-2f, -0.5f, -1f);
-//      renderSphere(-1f, -0.5f, -2f);
-//      renderSphere(-0f, -0.5f, -3f);
-//      renderSphere(1f, -0.5f, -4f);
-//      renderSphere(2f, -0.5f, -5f);
-// }
-
-private void renderCylinder(float x, float y, float z) {
-     GL11.glPushMatrix();
-     GL11.glTranslatef(x, y, z);
-     
-     Cylinder s = new Cylinder();
-     s.draw(1f,1f,1f, 200, 200);
-     //Sphere s = new Sphere();
-     //s.draw(1f, 20, 20);
-     GL11.glPopMatrix();
-}
-private void renderSphere(float x, float y, float z) {
-     GL11.glPushMatrix();
-     GL11.glTranslatef(x, y, z);
-     
-     Sphere s = new Sphere();
-     s.draw(1f, 50, 50);
-     GL11.glPopMatrix();
-}
     /**
      * Poll Input
      */
@@ -361,7 +203,7 @@ private void renderSphere(float x, float y, float z) {
     }
     
     public static void main(String[] args) {
-        new PA3().run();
+        new Game().run();
     }
     
     public static class Camera {
