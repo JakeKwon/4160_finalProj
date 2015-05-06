@@ -1,5 +1,10 @@
 package w4160;
 
+import java.lang.Math.*;
+import java.util.Stack;
+import java.util.List;
+import java.util.ArrayList;
+
 import java.nio.ByteBuffer;
 import java.io.File;
 import java.io.IOException;
@@ -24,14 +29,14 @@ public class Game {
 
     long lastFrameTime; // used to calculate delta
     
-    float triangleAngle; // Angle of rotation for the triangles
-    float quadAngle; // Angle of rotation for the quads
+    List<Asteroid> asteroids;
 
     public void run() {
 
         createWindow();
         getDelta(); // Initialise delta timer
         initGL();
+        initObjects();
         
         while (!closeRequested) {
             pollInput();
@@ -65,10 +70,13 @@ public class Game {
         GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST); // Really Nice Perspective Calculations
         Camera.create();        
     }
+
+    private void initObjects() {
+        asteroids = new ArrayList<Asteroid>();
+        asteroids.add(new Asteroid(10,10,10, 0.1f, new Vector3f(-1,-1,-1)));
+    }
     
     private void updateLogic(int delta) {
-        triangleAngle += 0.1f * delta; // Increase The Rotation Variable For The Triangles
-        quadAngle -= 0.05f * delta; // Decrease The Rotation Variable For The Quads
     }
 
 
@@ -79,44 +87,11 @@ public class Game {
         GL11.glTranslatef(0.0f, 0.0f, -7.0f); // Move Right And Into The Screen
 
         Camera.apply();
-        GL11.glBegin(GL11.GL_QUADS); // Start Drawing The Cube
-        GL11.glColor3f(0.0f, 1.0f, 0.0f); // Set The Color To Green
-        GL11.glVertex3f(1.0f, 1.0f, -1.0f); // Top Right Of The Quad (Top)
-        GL11.glVertex3f(-1.0f, 1.0f, -1.0f); // Top Left Of The Quad (Top)
-        GL11.glVertex3f(-1.0f, 1.0f, 1.0f); // Bottom Left Of The Quad (Top)
-        GL11.glVertex3f(1.0f, 1.0f, 1.0f); // Bottom Right Of The Quad (Top)
 
-        GL11.glColor3f(1.0f, 0.5f, 0.0f); // Set The Color To Orange
-        GL11.glVertex3f(1.0f, -1.0f, 1.0f); // Top Right Of The Quad (Bottom)
-        GL11.glVertex3f(-1.0f, -1.0f, 1.0f); // Top Left Of The Quad (Bottom)
-        GL11.glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Bottom)
-        GL11.glVertex3f(1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Bottom)
-
-        GL11.glColor3f(1.0f, 0.0f, 0.0f); // Set The Color To Red
-        GL11.glVertex3f(1.0f, 1.0f, 1.0f); // Top Right Of The Quad (Front)
-        GL11.glVertex3f(-1.0f, 1.0f, 1.0f); // Top Left Of The Quad (Front)
-        GL11.glVertex3f(-1.0f, -1.0f, 1.0f); // Bottom Left Of The Quad (Front)
-        GL11.glVertex3f(1.0f, -1.0f, 1.0f); // Bottom Right Of The Quad (Front)
-
-        GL11.glColor3f(1.0f, 1.0f, 0.0f); // Set The Color To Yellow
-        GL11.glVertex3f(1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Back)
-        GL11.glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Back)
-        GL11.glVertex3f(-1.0f, 1.0f, -1.0f); // Top Right Of The Quad (Back)
-        GL11.glVertex3f(1.0f, 1.0f, -1.0f); // Top Left Of The Quad (Back)
-
-        GL11.glColor3f(0.0f, 0.0f, 1.0f); // Set The Color To Blue
-        GL11.glVertex3f(-1.0f, 1.0f, 1.0f); // Top Right Of The Quad (Left)
-        GL11.glVertex3f(-1.0f, 1.0f, -1.0f); // Top Left Of The Quad (Left)
-        GL11.glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Left)
-        GL11.glVertex3f(-1.0f, -1.0f, 1.0f); // Bottom Right Of The Quad (Left)
-
-        GL11.glColor3f(1.0f, 0.0f, 1.0f); // Set The Color To Violet
-        GL11.glVertex3f(1.0f, 1.0f, -1.0f); // Top Right Of The Quad (Right)
-        GL11.glVertex3f(1.0f, 1.0f, 1.0f); // Top Left Of The Quad (Right)
-        GL11.glVertex3f(1.0f, -1.0f, 1.0f); // Bottom Left Of The Quad (Right)
-        GL11.glVertex3f(1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Right)
-        GL11.glEnd(); // Done Drawing The Quad
-
+        for (Asteroid a : asteroids) {
+            a.Move();
+            a.Draw();
+        }
     }
 
     /**
