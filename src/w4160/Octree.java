@@ -112,8 +112,24 @@ public class Octree
     * and all of its asteroids to its own children.
     */
     public void insert(Asteroid ast) {
+        Vector3f position = ast.getPos();
+
+        /* out of bounds attempt
+        System.out.println(ast);
+        System.out.println(origin.x);
+        System.out.println(size);
+
+        if (((position.x < origin.x) && (position.y < origin.y) && (position.z < origin.z)) || 
+            ((position.x > origin.x + size) && (position.y > origin.y + size) && (position.z > origin.z + size)) {
+                System.out.println("Out of bounds: " + ast);
+                return;
+            }
+        */
+            
+
+
         if (children[0] != null) {
-            int index = getIndex(ast.getPos());
+            int index = getIndex(position);
             children[index].insert(ast);
             return;
         }

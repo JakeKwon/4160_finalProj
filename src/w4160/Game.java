@@ -32,6 +32,7 @@ public class Game {
     ArrayList<Asteroid> asteroids;
     Octree octree;
     Vector3f player_pos;
+    Sky sky;
 
     public void run() {
 
@@ -40,6 +41,7 @@ public class Game {
         initGL();
         initObjects();
         
+
         while (!closeRequested) {
             pollInput();
             updateLogic(getDelta());
@@ -91,7 +93,7 @@ public class Game {
         Vector3f a2_to_player = new Vector3f();
         Vector3f.sub(player_pos, a2, a2_to_player);
 
-        octree.insert(new Asteroid(a1, 0.1f, a1_to_player));
+        octree.insert(new Asteroid(a1, 0.2f, a1_to_player));
         octree.insert(new Asteroid(a2, 0.1f, a2_to_player));
     }
     
@@ -117,7 +119,6 @@ public class Game {
 
         for (Asteroid a : asteroids) {
             a.Draw();
-            System.out.println("drawn");
         }
     }
 
