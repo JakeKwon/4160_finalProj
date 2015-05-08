@@ -32,9 +32,9 @@ public class Game {
     ArrayList<Asteroid> asteroids;
     Octree octree;
     Sky sky;
+    Player player;
 
     static final float AST_SIZE = 2;
-    static Vector3f player_pos = new Vector3f(50, 1, 50);
     
 
     public void run() {
@@ -56,7 +56,6 @@ public class Game {
     }
     
     private void initGL() {
-
         /* OpenGL */
         int width = Display.getDisplayMode().getWidth();
         int height = Display.getDisplayMode().getHeight();
@@ -81,6 +80,8 @@ public class Game {
         asteroids = new ArrayList<Asteroid>();
         octree = new Octree(0, new Vector3f(0, 0, 0), 100, "#");
         sky = new Sky(new Vector3f(50,50,50), 50); // Grey Cube
+        player = new Player(new Vector3f(50,1,50));
+        Camera.setPos(player.getPos());
 
         // Asteroid Positions
         Vector3f a1 = new Vector3f(0,100,100);
@@ -90,16 +91,16 @@ public class Game {
 
         // Astroid Directions
         Vector3f a1_to_player = new Vector3f();
-        Vector3f.sub(player_pos, a1, a1_to_player);
+        Vector3f.sub(player.getPos(), a1, a1_to_player);
 
         Vector3f a2_to_player = new Vector3f();
-        Vector3f.sub(player_pos, a2, a2_to_player);
+        Vector3f.sub(player.getPos(), a2, a2_to_player);
 
         Vector3f a3_to_player = new Vector3f();
-        Vector3f.sub(player_pos, a3, a3_to_player);
+        Vector3f.sub(player.getPos(), a3, a3_to_player);
 
         Vector3f a4_to_player = new Vector3f();
-        Vector3f.sub(player_pos, a4, a4_to_player);
+        Vector3f.sub(player.getPos(), a4, a4_to_player);
 
         // Put astroids into octree
         octree.insert(new Asteroid(a1, AST_SIZE, 0.1f, a1_to_player));
@@ -111,7 +112,7 @@ public class Game {
     private void updateLogic(int delta) {
         // Check if Asteroids hit the player
         ArrayList<Asteroid> hit;
-        hit = octree.get_inRange(player_pos, 2);
+        hit = octree.get_inRange(player.getPos(), 2);
 
         // Move Asteroids and
         // reinsert them to the octree
@@ -123,7 +124,7 @@ public class Game {
             if (!hit.contains(a))
                 octree.insert(a);
             else
-                System.out.println("hit");
+                System.out.println(player.damage());
         }
         //octree.traverse();
     }
@@ -241,7 +242,7 @@ public class Game {
         private static Vector3f rotation;
 
         public static void create() {
-            pos = new Vector3f(player_pos.x, player_pos.y, player_pos.z);
+            pos = new Vector3f(0, 0, 0);
             rotation = new Vector3f(0, 0, 0);
         }
 
