@@ -77,7 +77,7 @@ public class Game {
 
     private void initObjects() {
         asteroids = new ArrayList<Asteroid>();
-        octree = new Octree(0, new Vector3f(0, 0, 0), 100, "#");
+        octree = new Octree(new Vector3f(0, 0, 0), 100);
         sky = new Sky(new Vector3f(50,50,50), 50); // Grey Cube
         player = new Player(new Vector3f(50,1,50));
         Camera.setPos(player.getPos());

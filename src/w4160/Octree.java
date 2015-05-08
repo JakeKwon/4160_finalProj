@@ -22,7 +22,15 @@ public class Octree
     /*
      * Constructor
      */
-    public Octree(int in_level, Vector3f in_origin, float in_size, String in_index) {
+    public Octree(Vector3f in_origin, float in_size) {
+        this(0, in_origin, in_size, "#");
+    }
+
+
+    /*
+     * Constructor
+     */
+    private Octree(int in_level, Vector3f in_origin, float in_size, String in_index) {
         this.level = in_level;
         this.asteroids = new ArrayList<Asteroid>();
         this.origin = new Vector3f(in_origin);
@@ -114,17 +122,14 @@ public class Octree
     public void insert(Asteroid ast) {
         Vector3f position = ast.getPos();
 
-        /* out of bounds attempt
-        System.out.println(ast);
-        System.out.println(origin.x);
-        System.out.println(size);
-
-        if (((position.x < origin.x) && (position.y < origin.y) && (position.z < origin.z)) || 
-            ((position.x > origin.x + size) && (position.y > origin.y + size) && (position.z > origin.z + size)) {
+        // If root check if out of bounds
+        if (index == "#")
+            if (!((position.x >= origin.x) && (position.y >= origin.y) && (position.z >= origin.z) && 
+                (position.x <= origin.x + size) && (position.y <= origin.y + size) && (position.z <= origin.z + size))) {
                 System.out.println("Out of bounds: " + ast);
                 return;
             }
-        */
+        
 
         if (children[0] != null) {
             int index = getIndex(position);
