@@ -1,5 +1,22 @@
 package w4160;
 
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.GLU;
+import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.LWJGLException;
+import org.lwjgl.Sys;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.GLU;
+import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.glu.Sphere;
+
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.lang.Math.*;
 import java.util.Stack;
 import java.util.List;
@@ -9,7 +26,7 @@ import org.lwjgl.util.vector.Vector3f;
 public class Octree 
 {
     private int MAX_OBJECTS = 1;
-    private int MAX_LEVELS = 100;
+    private int MAX_LEVELS = 30;
 
     private int level;
     private ArrayList<Asteroid> asteroids;
@@ -86,9 +103,9 @@ public class Octree
     private int getIndex(Vector3f position) {
         float subSize = (float) this.size / 2;
 
-        boolean top = position.y > subSize;
-        boolean far = position.z > subSize;
-        boolean right = position.x > subSize;
+        boolean top = position.y > origin.y + subSize;
+        boolean far = position.z > origin.z + subSize;
+        boolean right = position.x > origin.x + subSize;
 
         if (top)
             if (far)
@@ -122,6 +139,7 @@ public class Octree
     public void insert(Asteroid ast) {
         Vector3f position = ast.getPos();
 
+        /*
         // If root check if out of bounds
         if (index == "#")
             if (!((position.x >= origin.x) && (position.y >= origin.y) && (position.z >= origin.z) && 
@@ -129,29 +147,27 @@ public class Octree
                 System.out.println("Out of bounds: " + ast);
                 return;
             }
-        
+        */
 
+        // If tree is already split
         if (children[0] != null) {
+            // get which child to put into
             int index = getIndex(position);
+            // insert into that child
             children[index].insert(ast);
             return;
         }
 
         asteroids.add(ast);
 
+        // If octree exceeds capacity
         if (asteroids.size() > MAX_OBJECTS && level < MAX_LEVELS) {
-            if (children[0] == null) { 
-                split(); 
+            split();
+            for (Asteroid a : asteroids) {
+                int index = getIndex(a.getPos());
+                children[index].insert(a);
             }
-
-            int i = 0;
-            while (i < asteroids.size()) {
-                int index = getIndex(asteroids.get(i).getPos());
-                if (index != -1)
-                    children[index].insert(asteroids.remove(i));
-                else
-                    i++;
-            }
+            asteroids.clear();
         }
     }
 
@@ -242,6 +258,61 @@ public class Octree
         return !seperate;
     }
 
+    void Draw(float r, float g, float b) {
+        float size = (float) this.size/2;
+
+        GL11.glPushMatrix();
+        GL11.glTranslatef(this.origin.x + size, this.origin.y + size, this.origin.z + size);
+        GL11.glColor3f(r, g, b);
+
+        // Set to wireframe
+        GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK,GL11.GL_LINE);
+
+        GL11.glBegin(GL11.GL_QUADS);
+        
+        GL11.glVertex3f(size*1.0f , size*1.0f , size*-1.0f);
+        GL11.glVertex3f(size*-1.0f, size*1.0f , size*-1.0f);
+        GL11.glVertex3f(size*-1.0f, size*1.0f , size*1.0f );
+        GL11.glVertex3f(size*1.0f , size*1.0f , size*1.0f );
+
+        GL11.glVertex3f(size*1.0f , size*-1.0f, size*1.0f );
+        GL11.glVertex3f(size*-1.0f, size*-1.0f, size*1.0f );
+        GL11.glVertex3f(size*-1.0f, size*-1.0f, size*-1.0f);
+        GL11.glVertex3f(size*1.0f , size*-1.0f, size*-1.0f);
+
+        GL11.glVertex3f(size*1.0f , size*1.0f , size*1.0f );
+        GL11.glVertex3f(size*-1.0f, size*1.0f , size*1.0f );
+        GL11.glVertex3f(size*-1.0f, size*-1.0f, size*1.0f );
+        GL11.glVertex3f(size*1.0f , size*-1.0f, size*1.0f );
+
+        GL11.glVertex3f(size*1.0f , size*-1.0f, size*-1.0f);
+        GL11.glVertex3f(size*-1.0f, size*-1.0f, size*-1.0f);
+        GL11.glVertex3f(size*-1.0f, size*1.0f , size*-1.0f);
+        GL11.glVertex3f(size*1.0f , size*1.0f , size*-1.0f);
+
+        GL11.glVertex3f(size*-1.0f, size*1.0f , size*1.0f );
+        GL11.glVertex3f(size*-1.0f, size*1.0f , size*-1.0f);
+        GL11.glVertex3f(size*-1.0f, size*-1.0f, size*-1.0f);
+        GL11.glVertex3f(size*-1.0f, size*-1.0f, size*1.0f );
+
+        GL11.glVertex3f(size*1.0f , size*1.0f , size*-1.0f);
+        GL11.glVertex3f(size*1.0f , size*1.0f , size*1.0f );
+        GL11.glVertex3f(size*1.0f , size*-1.0f, size*1.0f );
+        GL11.glVertex3f(size*1.0f , size*-1.0f , size*-1.0f);
+
+        GL11.glEnd();
+
+        // Set back to fill
+        GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK,GL11.GL_FILL);
+
+        GL11.glPopMatrix();
+
+        // traverse subtrees
+        if (children[0] != null)
+            for(int i=0; i < children.length; i++)
+                children[i].Draw(r, g, b);
+    }
+
     /*
      * Return distance between two vector positions.
      */
@@ -296,13 +367,13 @@ public class Octree
     }
     // Bot Bot Left
     private Vector3f get_bbl(float length) {
-        return new Vector3f(origin.x + length,
+        return new Vector3f(origin.x,
                             origin.y,
                             origin.z + length);
     }
     // Bot Bot Right
     private Vector3f get_bbr(float length) {
-        return new Vector3f(origin.x,
+        return new Vector3f(origin.x + length,
                             origin.y,
                             origin.z + length);
     }

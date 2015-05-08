@@ -33,7 +33,7 @@ public class Asteroid {
         velocity = in_velocity;
         in_direction.normalise(direction);
         sphere = new Sphere();
-        acceleration = 0.001f;
+        acceleration = 0.000f;
     }
 
     public void Draw() {

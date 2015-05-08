@@ -4,6 +4,7 @@ import java.lang.Math.*;
 import java.util.Stack;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Random;
 
 import java.nio.ByteBuffer;
 import java.io.File;
@@ -34,7 +35,7 @@ public class Game {
     Sky sky;
     Player player;
 
-    static final float AST_SIZE = 2;
+    static final float AST_SIZE = 2f;
 
     public void run() {
 
@@ -82,22 +83,24 @@ public class Game {
         player = new Player(new Vector3f(50,1,50));
         Camera.setPos(player.getPos());
 
-        // Asteroid Positions
-        Vector3f a1 = new Vector3f(0,100,100);
-        Vector3f a2 = new Vector3f(0,100,0);
-        Vector3f a3 = new Vector3f(100,100,0);
-        Vector3f a4 = new Vector3f(100,100,100);
+        genRandAsteroids();
+    }
 
-        // Astroid Directions
+    private void genAsteroids() {
+        // Asteroid Positions & Directions
+        Vector3f a1 = new Vector3f(0,100,100);
         Vector3f a1_to_player = new Vector3f();
         Vector3f.sub(player.getPos(), a1, a1_to_player);
 
+        Vector3f a2 = new Vector3f(0,100,0);
         Vector3f a2_to_player = new Vector3f();
         Vector3f.sub(player.getPos(), a2, a2_to_player);
 
+        Vector3f a3 = new Vector3f(100,100,0);
         Vector3f a3_to_player = new Vector3f();
         Vector3f.sub(player.getPos(), a3, a3_to_player);
 
+        Vector3f a4 = new Vector3f(100,100,100);
         Vector3f a4_to_player = new Vector3f();
         Vector3f.sub(player.getPos(), a4, a4_to_player);
 
@@ -106,6 +109,35 @@ public class Game {
         octree.insert(new Asteroid(a2, AST_SIZE, 0.2f, a2_to_player));
         octree.insert(new Asteroid(a3, AST_SIZE, 0.3f, a3_to_player));
         octree.insert(new Asteroid(a4, AST_SIZE, 0.4f, a4_to_player));
+    }
+
+    private void genTestAsteroids() {
+        // Asteroid Positions & Directions
+        Vector3f a1 = new Vector3f(60,60,60);
+        Vector3f a1_to_player = new Vector3f();
+        Vector3f.sub(player.getPos(), a1, a1_to_player);
+
+        Vector3f a2 = new Vector3f(80,80,80);
+        Vector3f a2_to_player = new Vector3f();
+        Vector3f.sub(player.getPos(), a2, a2_to_player);
+
+        // Put astroids into octree
+        octree.insert(new Asteroid(a1, AST_SIZE, 0f, a1_to_player));
+        octree.insert(new Asteroid(a2, AST_SIZE, 0f, a2_to_player));
+    }
+
+    private void genRandAsteroids() {
+        for(int i=0; i < 4; i++) {
+            Vector3f a1 = new Vector3f(randFloat(0,99),99,randFloat(0,99));
+            Vector3f a1_to_player = new Vector3f();
+            Vector3f.sub(player.getPos(), a1, a1_to_player);
+            octree.insert(new Asteroid(a1, AST_SIZE, 0.05f, a1_to_player));
+        }
+    }
+
+    private float randFloat(float min, float max) {
+        Random rand = new Random();
+        return rand.nextFloat() * (max - min) + min;
     }
     
     private void updateLogic(int delta) {
@@ -137,7 +169,8 @@ public class Game {
 
         Camera.apply();
 
-        sky.Draw();
+        //sky.Draw();
+        octree.Draw(1f, 0f, 0f);
         for (Asteroid a : asteroids) {
             a.Draw();
         }
