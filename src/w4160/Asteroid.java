@@ -36,7 +36,7 @@ public class Asteroid {
         GL11.glPushMatrix();
         GL11.glTranslatef(this.position.x, this.position.y, this.position.z);
         GL11.glColor3f(1.0f, 1.0f, 0.0f);
-        sphere.draw(4, 40, 40);
+        sphere.draw(2, 40, 40);
         GL11.glPopMatrix();
     }
 

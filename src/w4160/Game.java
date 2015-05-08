@@ -31,7 +31,7 @@ public class Game {
     
     ArrayList<Asteroid> asteroids;
     Octree octree;
-    Vector3f player_pos;
+    static Vector3f player_pos = new Vector3f(50, 1, 50);
     Sky sky;
 
     public void run() {
@@ -41,7 +41,6 @@ public class Game {
         initGL();
         initObjects();
         
-
         while (!closeRequested) {
             pollInput();
             updateLogic(getDelta());
@@ -62,7 +61,7 @@ public class Game {
         GL11.glViewport(0, 0, width, height); // Reset The Current Viewport
         GL11.glMatrixMode(GL11.GL_PROJECTION); // Select The Projection Matrix
         GL11.glLoadIdentity(); // Reset The Projection Matrix
-        GLU.gluPerspective(45.0f, ((float) width / (float) height), 0.1f, 100.0f); // Calculate The Aspect Ratio Of The Window
+        GLU.gluPerspective(45.0f, ((float) width / (float) height), 0.1f, 1000.0f); // Calculate The Aspect Ratio Of The Window
         GL11.glMatrixMode(GL11.GL_MODELVIEW); // Select The Modelview Matrix
         GL11.glLoadIdentity(); // Reset The Modelview Matrix
 
@@ -78,13 +77,13 @@ public class Game {
     private void initObjects() {
         asteroids = new ArrayList<Asteroid>();
         octree = new Octree(0, new Vector3f(0, 0, 0), 100, "#");
-
-        // Direction towards player
-        player_pos = new Vector3f(0, 0, 0);
+        sky = new Sky(new Vector3f(50,50,50), 50); // Grey Cube
 
         // Asteroid Positions
-        Vector3f a1 = new Vector3f(0,80,80);
-        Vector3f a2 = new Vector3f(0,0,80);
+        Vector3f a1 = new Vector3f(0,100,100);
+        Vector3f a2 = new Vector3f(0,100,0);
+        Vector3f a3 = new Vector3f(100,100,0);
+        Vector3f a4 = new Vector3f(100,100,100);
 
         // Astroid Directions
         Vector3f a1_to_player = new Vector3f();
@@ -93,11 +92,25 @@ public class Game {
         Vector3f a2_to_player = new Vector3f();
         Vector3f.sub(player_pos, a2, a2_to_player);
 
-        octree.insert(new Asteroid(a1, 0.2f, a1_to_player));
-        octree.insert(new Asteroid(a2, 0.1f, a2_to_player));
+        Vector3f a3_to_player = new Vector3f();
+        Vector3f.sub(player_pos, a3, a3_to_player);
+
+        Vector3f a4_to_player = new Vector3f();
+        Vector3f.sub(player_pos, a4, a4_to_player);
+
+        // Put astroids into octree
+        octree.insert(new Asteroid(a1, 0.1f, a1_to_player));
+        octree.insert(new Asteroid(a2, 0.2f, a2_to_player));
+        octree.insert(new Asteroid(a3, 0.3f, a3_to_player));
+        octree.insert(new Asteroid(a4, 0.4f, a4_to_player));
     }
     
     private void updateLogic(int delta) {
+        // Check if Asteroids hit the player
+
+
+        // Move Asteroids and
+        // reinsert them to the octree
         asteroids.clear();
         octree.get_elements(asteroids);
         octree.clear();
@@ -117,6 +130,7 @@ public class Game {
 
         Camera.apply();
 
+        sky.Draw();
         for (Asteroid a : asteroids) {
             a.Draw();
         }
@@ -220,8 +234,8 @@ public class Game {
         private static Vector3f rotation;
 
         public static void create() {
-            pos = new Vector3f(0, 0, 0);
-            rotation = new Vector3f(0, 180, 0);
+            pos = new Vector3f(player_pos.x, player_pos.y, player_pos.z);
+            rotation = new Vector3f(0, 0, 0);
         }
 
         public static void apply() {
