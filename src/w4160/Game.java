@@ -24,15 +24,18 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class Game {
 
-    String windowTitle = "3D COOL";
+    String windowTitle = "ASTEROIDS";
     public boolean closeRequested = false;
 
     long lastFrameTime; // used to calculate delta
     
     ArrayList<Asteroid> asteroids;
     Octree octree;
-    static Vector3f player_pos = new Vector3f(50, 1, 50);
     Sky sky;
+
+    static final float AST_SIZE = 2;
+    static Vector3f player_pos = new Vector3f(50, 1, 50);
+    
 
     public void run() {
 
@@ -99,15 +102,16 @@ public class Game {
         Vector3f.sub(player_pos, a4, a4_to_player);
 
         // Put astroids into octree
-        octree.insert(new Asteroid(a1, 0.1f, a1_to_player));
-        octree.insert(new Asteroid(a2, 0.2f, a2_to_player));
-        octree.insert(new Asteroid(a3, 0.3f, a3_to_player));
-        octree.insert(new Asteroid(a4, 0.4f, a4_to_player));
+        octree.insert(new Asteroid(a1, AST_SIZE, 0.1f, a1_to_player));
+        octree.insert(new Asteroid(a2, AST_SIZE, 0.2f, a2_to_player));
+        octree.insert(new Asteroid(a3, AST_SIZE, 0.3f, a3_to_player));
+        octree.insert(new Asteroid(a4, AST_SIZE, 0.4f, a4_to_player));
     }
     
     private void updateLogic(int delta) {
         // Check if Asteroids hit the player
-
+        ArrayList<Asteroid> hit;
+        hit = octree.get_inRange(player_pos, 2);
 
         // Move Asteroids and
         // reinsert them to the octree
@@ -116,9 +120,12 @@ public class Game {
         octree.clear();
         for (Asteroid a : asteroids) {
             a.Move();
-            octree.insert(a);
+            if (!hit.contains(a))
+                octree.insert(a);
+            else
+                System.out.println("hit");
         }
-        octree.traverse();
+        //octree.traverse();
     }
 
 

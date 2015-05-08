@@ -125,8 +125,6 @@ public class Octree
                 return;
             }
         */
-            
-
 
         if (children[0] != null) {
             int index = getIndex(position);

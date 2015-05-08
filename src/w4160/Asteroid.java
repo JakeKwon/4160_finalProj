@@ -22,10 +22,12 @@ public class Asteroid {
     private Vector3f position;
     private Vector3f direction;
     private float velocity;
+    private float size;
     private Sphere sphere;
 
-    public Asteroid(Vector3f in_position, float in_velocity, Vector3f in_direction) {
+    public Asteroid(Vector3f in_position, float in_size, float in_velocity, Vector3f in_direction) {
         position = new Vector3f(in_position);
+        size = in_size;
         direction = new Vector3f();
         velocity = in_velocity;
         in_direction.normalise(direction);
@@ -36,7 +38,7 @@ public class Asteroid {
         GL11.glPushMatrix();
         GL11.glTranslatef(this.position.x, this.position.y, this.position.z);
         GL11.glColor3f(1.0f, 1.0f, 0.0f);
-        sphere.draw(2, 40, 40);
+        sphere.draw(size, 40, 40);
         GL11.glPopMatrix();
     }
 
