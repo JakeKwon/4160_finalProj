@@ -9,17 +9,17 @@ public class Test {
 		Octree octree = new Octree(0, new Vector3f(0,0,0), 100, "#");
 		Vector3f dir = new Vector3f(1,1,1);
 
-		Asteroid a1 = new Asteroid(10, 10, 10, 1, dir);
-		Asteroid a2 = new Asteroid(40, 40, 40, 1, dir);
+		Asteroid a1 = new Asteroid(new Vector3f(10, 10, 10), 1, 1, dir);
+		Asteroid a2 = new Asteroid(new Vector3f(40, 40, 40), 1, 1, dir);
 
-		Asteroid b = new Asteroid(25, 25, 75, 1, dir);
-		Asteroid c = new Asteroid(75, 25, 25, 1, dir);
-		Asteroid d = new Asteroid(75, 25, 75, 1, dir);
+		Asteroid b = new Asteroid(new Vector3f(25, 25, 75), 1, 1, dir);
+		Asteroid c = new Asteroid(new Vector3f(75, 25, 25), 1, 1, dir);
+		Asteroid d = new Asteroid(new Vector3f(75, 25, 75), 1, 1, dir);
 
-		Asteroid e = new Asteroid(25, 75, 25, 1, dir);
-		Asteroid f = new Asteroid(25, 75, 75, 1, dir);
-		Asteroid g = new Asteroid(75, 75, 25, 1, dir);
-		Asteroid h = new Asteroid(75, 75, 75, 1, dir);
+		Asteroid e = new Asteroid(new Vector3f(25, 75, 25), 1, 1, dir);
+		Asteroid f = new Asteroid(new Vector3f(25, 75, 75), 1, 1, dir);
+		Asteroid g = new Asteroid(new Vector3f(75, 75, 25), 1, 1, dir);
+		Asteroid h = new Asteroid(new Vector3f(75, 75, 75), 1, 1, dir);
 
 		octree.insert(a1);
 		octree.insert(a2);
