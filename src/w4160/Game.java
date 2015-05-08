@@ -209,10 +209,11 @@ public class Game {
 
     private void createWindow() {
         try {
-            Display.setDisplayMode(new DisplayMode(640, 480));
+            Display.setDisplayMode(new DisplayMode(800, 800));
             Display.setVSyncEnabled(true);
             Display.setTitle(windowTitle);
             Display.create();
+            Mouse.setGrabbed(true);
         } catch (LWJGLException e) {
             Sys.alert("Error", "Initialization failed!\n\n" + e.getMessage());
             System.exit(0);

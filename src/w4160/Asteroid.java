@@ -22,6 +22,7 @@ public class Asteroid {
     private Vector3f position;
     private Vector3f direction;
     private float velocity;
+    private float acceleration;
     private float size;
     private Sphere sphere;
 
@@ -32,6 +33,7 @@ public class Asteroid {
         velocity = in_velocity;
         in_direction.normalise(direction);
         sphere = new Sphere();
+        acceleration = 0.001f;
     }
 
     public void Draw() {
@@ -46,6 +48,7 @@ public class Asteroid {
         position.x += velocity * direction.x;
         position.y += velocity * direction.y;
         position.z += velocity * direction.z;
+        velocity += acceleration;
     }
 
     public double getX() {
