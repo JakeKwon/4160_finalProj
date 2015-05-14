@@ -28,7 +28,10 @@ import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.ARBGeometryShader4;
+import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
 
 /**
@@ -41,33 +44,49 @@ public class ShaderProgram {
     public final int program;
     public final int vertex;
     public final int fragment;
+    public final int geometry;
 
     protected String s;
     protected static FloatBuffer buff;
 
-    public ShaderProgram(String vert, String frag) throws LWJGLException {
+    public ShaderProgram(String vert, String frag, String geom) throws LWJGLException {
 
         vertex = createShader(vert, GL_VERTEX_SHADER);
         fragment = createShader(frag, GL_FRAGMENT_SHADER);
-
+        //geometry = createShader(geom, ARBGeometryShader4.GL_GEOMETRY_SHADER_ARB);
+        geometry = ARBShaderObjects.glCreateShaderObjectARB(ARBGeometryShader4.GL_GEOMETRY_SHADER_ARB);
+        ARBShaderObjects.glShaderSourceARB(geometry, geom);
+        ARBShaderObjects.glCompileShaderARB(geometry);
+        if (ARBShaderObjects.glGetObjectParameteriARB(geometry, ARBShaderObjects.GL_OBJECT_COMPILE_STATUS_ARB) == GL11.GL_FALSE)
+            throw new RuntimeException("Error creating shader: " + ARBShaderObjects.glGetInfoLogARB(geometry, ARBShaderObjects.glGetObjectParameteriARB(geometry, ARBShaderObjects.GL_OBJECT_INFO_LOG_LENGTH_ARB)));
+        
         program = glCreateProgram();
 
         glAttachShader(program, vertex);
         glAttachShader(program, fragment);
-
+        glAttachShader(program, geometry);
+        
+        //ARBShaderObjects.glAttachObjectARB(program, geometry);
+        
         glLinkProgram(program);
+        GL20.glValidateProgram(program);
 
         String log = glGetProgramInfoLog(program, glGetProgrami(program, GL_INFO_LOG_LENGTH)); 
         if (log != null && log.trim().length() != 0)
+        {
             s += log;
-
+            System.out.println(s + "\n");
+        }
         if (glGetProgrami(program, GL_LINK_STATUS) == GL11.GL_FALSE)
             System.err.println("Could not link shader program\n" + s);
 
         glDetachShader(program, vertex);
         glDetachShader(program, fragment);
+        glDetachShader(program, geometry);
+        //ARBShaderObjects.glDetachObjectARB(program, geometry);
         glDeleteShader(vertex);
         glDeleteShader(fragment);
+        glDeleteShader(geometry);
 
     }
 
