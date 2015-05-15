@@ -57,7 +57,7 @@ public class Game {
         // Set up shaders
         initShaders();
         texturLoc = GL20.glGetUniformLocation(birdShader.program, "bird");
-        Utilities.loadTexture("HUMBIRD1.jpg", GL13.GL_TEXTURE0);
+        Utilities.loadTexture("glsl/HUMBIRD1.jpg", GL13.GL_TEXTURE0);
 
         // Set up initial objects (birds)
         initObjects();
