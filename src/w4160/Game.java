@@ -138,7 +138,10 @@ public class Game {
                                         randFloat(OCT_SIZE/2 - 200, OCT_SIZE/2 + 200),
                                          randFloat(OCT_SIZE/2 - 200, OCT_SIZE/2 + 200));
             Vector3f a1_dir = new Vector3f(randFloat(-1,1),randFloat(-1, 1),randFloat(-1, 1));
-            octree.insert(new Bird(a1, AST_SIZE, 2f, a1_dir));
+			Bird b = new Bird(a1, AST_SIZE, 2f, a1_dir);
+			Bird newBird = new Bird(b);
+			birds.add(newBird);
+            octree.insert(newBird);
         }
     }
 
@@ -160,9 +163,9 @@ public class Game {
             BoidUtil.alignment(a, octree.get_inRange(a, 100), 15);
             BoidUtil.seperation(a, octree.get_inRange(a, 50), 15);
             BoidUtil.reset(a, OCT_SIZE, OCT_SIZE, OCT_SIZE);
-            Bird newBird = new Bird(a);
-            newBird.Move();
-            newOctree.insert(newBird);
+            //Bird newBird = new Bird(a);
+            a.Move();
+            newOctree.insert(a);
         }
         octree = null;
         octree = newOctree;

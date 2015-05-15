@@ -18,9 +18,55 @@ public class Body {
     List<Vector3f> normals = new ArrayList<Vector3f>();
     List<Face> faces = new ArrayList<Face>();
     List<Vector2f> texCords = new ArrayList<Vector2f>();
+	
+	private int bodyDisplayList;
     
     public Body(){};
     
+	public void init(){
+		bodyDisplayList = GL11.glGenLists(1);
+		GL11.glNewList(bodyDisplayList, GL11.GL_COMPILE);
+        {
+			Body body = null;
+			try {
+				body = LoadModel(new File("mesh/body.OBJ"));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			GL11.glBegin(GL11.GL_TRIANGLES);
+			for(Face face : body.faces){
+				//System.out.print(face.normal + "\n");
+				Vector3f n1 = body.normals.get((int) face.normal.x - 1);
+				GL11.glNormal3f(n1.x, n1.z, n1.y);
+				Vector3f v1 = body.vertices.get((int) face.vertex.x - 1);
+				GL11.glVertex3f(v1.x, v1.y, v1.z);
+				Vector2f t1 = body.texCords.get((int) face.tex.x - 1);
+				GL11.glTexCoord2f(t1.x, t1.y);
+
+				Vector3f n2 = body.normals.get((int) face.normal.y - 1);
+				GL11.glNormal3f(n2.x, n2.z, n2.y);
+				Vector3f v2 = body.vertices.get((int) face.vertex.z - 1);
+				GL11.glVertex3f(v2.x, v2.y, v2.z);
+				Vector2f t2 = body.texCords.get((int) face.tex.y - 1);
+				GL11.glTexCoord2f(t2.x, t2.y);
+
+				Vector3f n3 = body.normals.get((int) face.normal.z - 1);
+				GL11.glNormal3f(n3.x, n3.z, n3.y);
+				Vector3f v3 = body.vertices.get((int) face.vertex.y - 1);
+				GL11.glVertex3f(v3.x, v3.y, v3.z);
+				Vector2f t3 = body.texCords.get((int) face.tex.z - 1);
+				GL11.glTexCoord2f(t3.x, t3.y);
+			}
+			GL11.glEnd();
+		}
+        GL11.glEndList();
+	}
+	
     public static Body LoadModel(File f) throws IOException, FileNotFoundException
 	{
 		BufferedReader reader = new BufferedReader(new FileReader(f));
@@ -87,43 +133,12 @@ public class Body {
     
     public void draw(Vector3f origin, float scale)
     {
-    	Body body = null;
-    	try {
-			body = LoadModel(new File("mesh/body.OBJ"));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	
     	GL11.glPushMatrix();
 	    GL11.glScalef(scale, scale, scale);
-    	GL11.glBegin(GL11.GL_TRIANGLES);
-		for(Face face : body.faces){
-			//System.out.print(face.normal + "\n");
-			Vector3f n1 = body.normals.get((int) face.normal.x - 1);
-			GL11.glNormal3f(n1.x, n1.z, n1.y);
-			Vector3f v1 = body.vertices.get((int) face.vertex.x - 1);
-			GL11.glVertex3f(v1.x, v1.y, v1.z);
-			Vector2f t1 = body.texCords.get((int) face.tex.x - 1);
-			GL11.glTexCoord2f(t1.x, t1.y);
-
-			Vector3f n2 = body.normals.get((int) face.normal.y - 1);
-			GL11.glNormal3f(n2.x, n2.z, n2.y);
-			Vector3f v2 = body.vertices.get((int) face.vertex.z - 1);
-			GL11.glVertex3f(v2.x, v2.y, v2.z);
-			Vector2f t2 = body.texCords.get((int) face.tex.y - 1);
-			GL11.glTexCoord2f(t2.x, t2.y);
-
-			Vector3f n3 = body.normals.get((int) face.normal.z - 1);
-			GL11.glNormal3f(n3.x, n3.z, n3.y);
-			Vector3f v3 = body.vertices.get((int) face.vertex.y - 1);
-			GL11.glVertex3f(v3.x, v3.y, v3.z);
-			Vector2f t3 = body.texCords.get((int) face.tex.z - 1);
-			GL11.glTexCoord2f(t3.x, t3.y);
-		}
-		GL11.glEnd();
+    	
+		GL11.glCallList(bodyDisplayList);
+		
 		GL11.glPopMatrix();
 	
     }

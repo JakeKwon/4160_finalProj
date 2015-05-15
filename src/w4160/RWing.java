@@ -16,11 +16,50 @@ public class RWing {
 	List<Vector3f> vertices = new ArrayList<Vector3f>();
     List<Vector3f> normals = new ArrayList<Vector3f>();
     List<Face> faces = new ArrayList<Face>();
+	
+	private int rwDisplayList;
 
     float rotateZ = -55.0f;
 	boolean down = true;
 	
     public RWing(){};
+	
+	public void init(){
+		rwDisplayList = GL11.glGenLists(1);
+        GL11.glNewList(rwDisplayList, GL11.GL_COMPILE);
+        {
+			RWing rw = null;
+			try {
+				rw = LoadModel(new File("mesh/RWing.OBJ"));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			GL11.glBegin(GL11.GL_TRIANGLES);
+			for(Face face : rw.faces){
+				//System.out.print(face.normal + "\n");
+				Vector3f n1 = rw.normals.get((int) face.normal.x - 1);
+				GL11.glNormal3f(n1.x, n1.z, n1.y);
+				Vector3f v1 = rw.vertices.get((int) face.vertex.x - 1);
+				GL11.glVertex3f(v1.x, v1.y, v1.z);
+
+				Vector3f n2 = rw.normals.get((int) face.normal.y - 1);
+				GL11.glNormal3f(n2.x, n2.z, n2.y);
+				Vector3f v2 = rw.vertices.get((int) face.vertex.y - 1);
+				GL11.glVertex3f(v2.x, v2.y, v2.z);
+
+				Vector3f n3 = rw.normals.get((int) face.normal.z - 1);
+				GL11.glNormal3f(n3.x, n3.z, n3.y);
+				Vector3f v3 = rw.vertices.get((int) face.vertex.z - 1);
+				GL11.glVertex3f(v3.x, v3.y, v3.z);
+			}
+			GL11.glEnd();
+		}
+        GL11.glEndList();
+	}
     
     public static RWing LoadModel(File f) throws IOException, FileNotFoundException
 	{
@@ -76,38 +115,12 @@ public class RWing {
     
     public void draw(Vector3f origin, float scale)
     {
-    	RWing rw = null;
-    	try {
-			rw = LoadModel(new File("mesh/RWing.OBJ"));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	GL11.glPushMatrix();
-	    GL11.glScalef(scale, scale, scale);
-	    GL11.glRotatef(rotateZ, 0, 0, 1);
-    	GL11.glBegin(GL11.GL_TRIANGLES);
-		for(Face face : rw.faces){
-			//System.out.print(face.normal + "\n");
-			Vector3f n1 = rw.normals.get((int) face.normal.x - 1);
-			GL11.glNormal3f(n1.x, n1.z, n1.y);
-			Vector3f v1 = rw.vertices.get((int) face.vertex.x - 1);
-			GL11.glVertex3f(v1.x, v1.y, v1.z);
-
-			Vector3f n2 = rw.normals.get((int) face.normal.y - 1);
-			GL11.glNormal3f(n2.x, n2.z, n2.y);
-			Vector3f v2 = rw.vertices.get((int) face.vertex.y - 1);
-			GL11.glVertex3f(v2.x, v2.y, v2.z);
-
-			Vector3f n3 = rw.normals.get((int) face.normal.z - 1);
-			GL11.glNormal3f(n3.x, n3.z, n3.y);
-			Vector3f v3 = rw.vertices.get((int) face.vertex.z - 1);
-			GL11.glVertex3f(v3.x, v3.y, v3.z);
-		}
-		GL11.glEnd();
+		
+		
+		GL11.glPushMatrix();
+		GL11.glScalef(scale, scale, scale);
+		GL11.glRotatef(rotateZ, 0, 0, 1);
+		GL11.glCallList(rwDisplayList);
 		GL11.glPopMatrix();
 	
     }
