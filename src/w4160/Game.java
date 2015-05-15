@@ -356,7 +356,7 @@ public class Game {
 
     private void createWindow() {
         try {
-            Display.setDisplayMode(new DisplayMode(800, 800));
+            Display.setDisplayMode(new DisplayMode(960, 540));
             Display.setVSyncEnabled(true);
             Display.setTitle(windowTitle);
             Display.create();
