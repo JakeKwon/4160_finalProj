@@ -33,7 +33,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class Game {
 
-    String windowTitle = "ASTEROIDS";
+    String windowTitle = "BOIDS";
     public boolean closeRequested = false;
 
     long lastFrameTime; // used to calculate delta
@@ -43,10 +43,15 @@ public class Game {
     Sky sky;
 
     ShaderProgram birdShader;
+	ShaderProgram birdShader_110;
     int texturLoc;
+	int texturLoc110;
 
     static final float AST_SIZE = 1f;
     static final float OCT_SIZE = 800f;
+	
+	boolean GShader = false;
+	boolean shaderChanged = false;
 
     public void run() {
 
@@ -54,16 +59,35 @@ public class Game {
         getDelta(); // Initialise delta timer
         initGL();
 
-        // Set up shaders
-        //initShaders();
-        //texturLoc = GL20.glGetUniformLocation(birdShader.program, "bird");
-        //Utilities.loadTexture("glsl/HUMBIRD1.jpg", GL13.GL_TEXTURE0);
+        // Set up basic shaders
+		initShaders_110();
+		texturLoc110 = GL20.glGetUniformLocation(birdShader_110.program, "bird");
+        Utilities.loadTexture("glsl/HUMBIRD1.jpg", GL13.GL_TEXTURE0);
 
         // Set up initial objects (birds)
         initObjects();
         
         while (!closeRequested) {
+		
             pollInput();
+			// Switch shaders
+			if(shaderChanged)
+			{
+				if(GShader)
+				{
+					initShaders();
+					texturLoc = GL20.glGetUniformLocation(birdShader.program, "bird");
+					Utilities.loadTexture("glsl/HUMBIRD1.jpg", GL13.GL_TEXTURE0);
+				}
+				else{
+					initShaders_110();
+					texturLoc110 = GL20.glGetUniformLocation(birdShader_110.program, "bird");
+					Utilities.loadTexture("glsl/HUMBIRD1.jpg", GL13.GL_TEXTURE0);
+				}
+				shaderChanged = false;
+			}
+			//End switch
+			
             updateLogic(getDelta());
             renderGL();
 
@@ -118,14 +142,29 @@ public class Game {
     }
 
     private void initShaders() {
-         String asteroid_vertex_shader = Utilities.LoadGLSL("glsl/bird.vert");
+         String bird_vertex_shader = Utilities.LoadGLSL("glsl/bird.vert");
         
-         String asteroid_fragment_shader = Utilities.LoadGLSL("glsl/bird.frag");
+         String bird_fragment_shader = Utilities.LoadGLSL("glsl/bird.frag");
          
-         String asteroid_geometry_shader = Utilities.LoadGLSL("glsl/bird2.geom");
+         String bird_geometry_shader = Utilities.LoadGLSL("glsl/bird2.geom");
 
         try {
-            birdShader = new ShaderProgram(asteroid_vertex_shader, asteroid_fragment_shader, asteroid_geometry_shader);
+            birdShader = new ShaderProgram(bird_vertex_shader, bird_fragment_shader, bird_geometry_shader, true);
+        } catch (LWJGLException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+	
+	private void initShaders_110() {
+         String bird_vertex_shader = Utilities.LoadGLSL("glsl/bird_110.vert");
+        
+         String bird_fragment_shader = Utilities.LoadGLSL("glsl/bird_110.frag");
+		 
+		 String bird_geometry_shader = Utilities.LoadGLSL("glsl/bird2.geom");
+
+        try {
+            birdShader_110 = new ShaderProgram(bird_vertex_shader, bird_fragment_shader, "", false);
         } catch (LWJGLException e) {
             e.printStackTrace();
             System.exit(1);
@@ -188,14 +227,25 @@ public class Game {
         //octree.Draw(1f, 0f, 0f);
 
         // Apply shaders
-        //birdShader.begin();
-        //GL20.glUniform1i(texturLoc, 0);
-        for (Bird a : birds) {
-            a.Draw();
-        } 
+		if(GShader){ //using geometry shader
+			birdShader.begin();
+			GL20.glUniform1i(texturLoc, 0);
+			for (Bird a : birds) {
+				a.Draw();
+			} 
 
-        //birdShader.end();
-        //  
+			birdShader.end();
+        }
+		else{ //using regular shader
+		
+			birdShader_110.begin();
+			GL20.glUniform1i(texturLoc110, 0);
+			for (Bird a : birds) {
+				a.Draw();
+			} 
+
+			birdShader_110.end();
+		}
     }
 
     /**
@@ -210,6 +260,14 @@ public class Game {
                     closeRequested = true;
                 else if (Keyboard.getEventKey() == Keyboard.KEY_P)
                     snapshot();
+				else if (Keyboard.getEventKey() == Keyboard.KEY_G){
+					GShader = true;
+                    shaderChanged = true;
+				}
+				else if (Keyboard.getEventKey() == Keyboard.KEY_O){
+					GShader = false;
+                    shaderChanged = true;
+				}
             }
         }
 

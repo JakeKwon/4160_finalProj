@@ -49,22 +49,29 @@ public class ShaderProgram {
     protected String s;
     protected static FloatBuffer buff;
 
-    public ShaderProgram(String vert, String frag, String geom) throws LWJGLException {
+    public ShaderProgram(String vert, String frag, String geom, boolean useGeom) throws LWJGLException {
 
         vertex = createShader(vert, GL_VERTEX_SHADER);
         fragment = createShader(frag, GL_FRAGMENT_SHADER);
-        //geometry = createShader(geom, ARBGeometryShader4.GL_GEOMETRY_SHADER_ARB);
-        geometry = ARBShaderObjects.glCreateShaderObjectARB(ARBGeometryShader4.GL_GEOMETRY_SHADER_ARB);
-        ARBShaderObjects.glShaderSourceARB(geometry, geom);
-        ARBShaderObjects.glCompileShaderARB(geometry);
-        if (ARBShaderObjects.glGetObjectParameteriARB(geometry, ARBShaderObjects.GL_OBJECT_COMPILE_STATUS_ARB) == GL11.GL_FALSE)
-            throw new RuntimeException("Error creating shader: " + ARBShaderObjects.glGetInfoLogARB(geometry, ARBShaderObjects.glGetObjectParameteriARB(geometry, ARBShaderObjects.GL_OBJECT_INFO_LOG_LENGTH_ARB)));
-        
+
+		/*******This is not used if useGeom is false**********/
+		if(useGeom){
+			geometry = ARBShaderObjects.glCreateShaderObjectARB(ARBGeometryShader4.GL_GEOMETRY_SHADER_ARB);
+			ARBShaderObjects.glShaderSourceARB(geometry, geom);
+			ARBShaderObjects.glCompileShaderARB(geometry);
+			if (ARBShaderObjects.glGetObjectParameteriARB(geometry, ARBShaderObjects.GL_OBJECT_COMPILE_STATUS_ARB) == GL11.GL_FALSE)
+				throw new RuntimeException("Error creating shader: " + ARBShaderObjects.glGetInfoLogARB(geometry, ARBShaderObjects.glGetObjectParameteriARB(geometry, ARBShaderObjects.GL_OBJECT_INFO_LOG_LENGTH_ARB)));
+		}
+		else
+			geometry = 0;
+		/*******This is not used if useGeom is false**********/
+			
         program = glCreateProgram();
 
         glAttachShader(program, vertex);
         glAttachShader(program, fragment);
-        glAttachShader(program, geometry);
+		if(useGeom)
+			glAttachShader(program, geometry);
         
         //ARBShaderObjects.glAttachObjectARB(program, geometry);
         
@@ -82,11 +89,13 @@ public class ShaderProgram {
 
         glDetachShader(program, vertex);
         glDetachShader(program, fragment);
-        glDetachShader(program, geometry);
-        //ARBShaderObjects.glDetachObjectARB(program, geometry);
+		if(useGeom)
+			glDetachShader(program, geometry);
+        
         glDeleteShader(vertex);
         glDeleteShader(fragment);
-        glDeleteShader(geometry);
+        if(useGeom)
+			glDeleteShader(geometry);
 
     }
 
