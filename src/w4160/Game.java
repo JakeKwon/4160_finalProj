@@ -55,9 +55,9 @@ public class Game {
         initGL();
 
         // Set up shaders
-        initShaders();
-        texturLoc = GL20.glGetUniformLocation(birdShader.program, "bird");
-        Utilities.loadTexture("glsl/HUMBIRD1.jpg", GL13.GL_TEXTURE0);
+        //initShaders();
+        //texturLoc = GL20.glGetUniformLocation(birdShader.program, "bird");
+        //Utilities.loadTexture("glsl/HUMBIRD1.jpg", GL13.GL_TEXTURE0);
 
         // Set up initial objects (birds)
         initObjects();
@@ -185,13 +185,13 @@ public class Game {
         octree.Draw(1f, 0f, 0f);
 
         // Apply shaders
-        birdShader.begin();
-        GL20.glUniform1i(texturLoc, 0);
+        //birdShader.begin();
+        //GL20.glUniform1i(texturLoc, 0);
         for (Bird a : birds) {
             a.Draw();
         } 
 
-        birdShader.end();
+        //birdShader.end();
         //  
     }
 
