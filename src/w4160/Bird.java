@@ -58,20 +58,41 @@ public class Bird {
 
     public Bird(Bird b) {
         this(b.getPos(), b.getSize(), b.getVel(), b.getDir(), b.body, b.lwing, b.rwing);
+        //this(b.getPos(), b.getSize(), b.getVel(), b.getDir());
     }
 
     public void Draw() {
+
+        /* Bird 
+        float rotationY = (float) Math.toDegrees(Math.atan(direction.x/direction.z));
+        //float rotationZ = 0f;
+        //float rotationX = (float) Math.toDegrees(Math.atan(direction.z/direction.y));
+
+        if(direction.z < 0)
+            rotationY = (float) Math.toDegrees(Math.atan(direction.x/direction.z)) + 180;
+        //if(direction.x < 0)
+        //rotationZ = (float) Math.toDegrees(Math.atan(direction.y/direction.x)) + 180;
+        //if(direction.y < 0)
+        //rotationX = (float) Math.toDegrees(Math.atan(direction.z/direction.y)) + 180;
+
         GL11.glPushMatrix();
         GL11.glTranslatef(this.position.x, this.position.y, this.position.z);
-        //GL11.glRotatef((float) Math.toDegrees(Math.atan(direction.z/direction.y)), 1f, 0f, 0f);
-        GL11.glRotatef((float) Math.toDegrees(Math.atan(direction.x/direction.z)), 0f, 1f, 0f);
-        //GL11.glRotatef((float) Math.toDegrees(Math.atan(direction.y/direction.x)), 0f, 0f, 1f);
+        GL11.glRotatef(0, 1f, 0f, 0f);
+        GL11.glRotatef(rotationY, 0f, 1f, 0f);
+        GL11.glRotatef(0, 0f, 0f, 1f);
         GL11.glTranslatef(-this.position.x, -this.position.y, -this.position.z);
         GL11.glTranslatef(this.position.x, this.position.y, this.position.z);
-        
+
         body.draw(new Vector3f(0, 0, 0), 1);
         lwing.draw(new Vector3f(0, 0, 0), 1);
         rwing.draw(new Vector3f(0, 0, 0), 1);
+        GL11.glPopMatrix();
+        */
+        
+        GL11.glPushMatrix();
+        GL11.glTranslatef(this.position.x, this.position.y, this.position.z);
+        GL11.glColor3f(1.0f, 1.0f, 0.0f);
+        sphere.draw(size, 10, 10);
         GL11.glPopMatrix();
     }
 
@@ -82,6 +103,18 @@ public class Bird {
         position.y += velocity * direction.y;
         position.z += velocity * direction.z;
         velocity += acceleration;
+    }
+
+    public void setX(float x) {
+        position.x = x;
+    }
+
+    public void setY(float y) {
+        position.y = y;
+    }
+
+    public void setZ(float z) {
+        position.z = z;
     }
 
     public double getX() {
@@ -129,7 +162,12 @@ public class Bird {
     }
 
     public void setDir(Vector3f new_dir) {
-        new_dir.normalise(this.direction);
+        if (new_dir.x == 0 && new_dir.y == 0 && new_dir.z == 0) {
+            System.out.println("zero direction");
+            return;
+        } else {
+            new_dir.normalise(this.direction);
+        }
     }
 
     @Override

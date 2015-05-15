@@ -41,12 +41,12 @@ public class Game {
     ArrayList<Bird> birds;
     Octree octree;
     Sky sky;
-    Player player;
 
     ShaderProgram birdShader;
     int texturLoc;
 
-    static final float AST_SIZE = 2f;
+    static final float AST_SIZE = 1f;
+    static final float OCT_SIZE = 800f;
 
     public void run() {
 
@@ -82,7 +82,7 @@ public class Game {
         GL11.glViewport(0, 0, width, height); // Reset The Current Viewport
         GL11.glMatrixMode(GL11.GL_PROJECTION); // Select The Projection Matrix
         GL11.glLoadIdentity(); // Reset The Projection Matrix
-        GLU.gluPerspective(45.0f, ((float) width / (float) height), 0.1f, 1000.0f); // Calculate The Aspect Ratio Of The Window
+        GLU.gluPerspective(45.0f, ((float) width / (float) height), 0.1f, 3000.0f); // Calculate The Aspect Ratio Of The Window
         GL11.glMatrixMode(GL11.GL_MODELVIEW); // Select The Modelview Matrix
         GL11.glLoadIdentity(); // Reset The Modelview Matrix
 
@@ -112,11 +112,8 @@ public class Game {
 
     private void initObjects() {
         birds = new ArrayList<Bird>();
-        octree = new Octree(new Vector3f(0, 0, 0), 100);
-        sky = new Sky(new Vector3f(50,50,50), 51); // Yellow Cube
-        player = new Player(new Vector3f(50,1,50));
-        Camera.setPos(player.getPos());
-
+        octree = new Octree(new Vector3f(0, 0, 0), OCT_SIZE);
+        sky = new Sky(new Vector3f(OCT_SIZE/2,OCT_SIZE/2,OCT_SIZE/2), OCT_SIZE/2); // Yellow Cube
         genRandBirds();
     }
 
@@ -128,7 +125,6 @@ public class Game {
          String asteroid_geometry_shader = Utilities.LoadGLSL("glsl/bird2.geom");
 
         try {
-            //shader = new ShaderProgram(vertex_shader, fragment_shader);
             birdShader = new ShaderProgram(asteroid_vertex_shader, asteroid_fragment_shader, asteroid_geometry_shader);
         } catch (LWJGLException e) {
             e.printStackTrace();
@@ -137,11 +133,12 @@ public class Game {
     }
 
     private void genRandBirds() {
-        for(int i=0; i < 4; i++) {
-            Vector3f a1 = new Vector3f(randFloat(0,99),randFloat(0,99),randFloat(0,99));
-            Vector3f a1_to_player = new Vector3f();
-            Vector3f.sub(player.getPos(), a1, a1_to_player);
-            octree.insert(new Bird(a1, AST_SIZE, 0.0f, a1_to_player));
+        for(int i=0; i < 10; i++) {
+            Vector3f a1 = new Vector3f(randFloat(OCT_SIZE/2 - 100, OCT_SIZE/2 + 100),
+                                        randFloat(OCT_SIZE/2 - 100, OCT_SIZE/2 + 100),
+                                         randFloat(OCT_SIZE/2 - 100, OCT_SIZE/2 + 100));
+            Vector3f a1_dir = new Vector3f(randFloat(-1,1),randFloat(-1, 1),randFloat(-1, 1));
+            octree.insert(new Bird(a1, AST_SIZE, 2f, a1_dir));
         }
     }
 
@@ -159,7 +156,10 @@ public class Game {
 
         for (Bird a : birds) {
             // Apply behavior and move bird
-            //Util.cohesion(a, octree.get_inRange(a.getPos(), 5));
+            BoidUtil.cohesion(a, octree.get_inRange(a, 150), 8);
+            BoidUtil.alignment(a, octree.get_inRange(a, 100), 10);
+            BoidUtil.seperation(a, octree.get_inRange(a, 50), 15);
+            BoidUtil.reset(a, OCT_SIZE, OCT_SIZE, OCT_SIZE);
             Bird newBird = new Bird(a);
             newBird.Move();
             newOctree.insert(newBird);
@@ -182,7 +182,7 @@ public class Game {
 
         //
         sky.Draw();
-        octree.Draw(1f, 0f, 0f);
+        //octree.Draw(1f, 0f, 0f);
 
         // Apply shaders
         //birdShader.begin();

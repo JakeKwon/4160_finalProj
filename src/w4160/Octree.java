@@ -25,7 +25,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class Octree 
 {
-    private int MAX_OBJECTS = 1;
+    private int MAX_OBJECTS = 5;
     private int MAX_LEVELS = 30;
 
     private int level;
@@ -183,7 +183,7 @@ public class Octree
     /*
         Gets all neighbors of element c in the radius rad.
     */
-    public ArrayList<Bird> get_inRange(Vector3f position, float rad) {
+    public ArrayList<Bird> get_inRange(Bird b, float rad) {
         // Maintain a stack of all octrees whose elements will be compared
         Stack<Octree> s = new Stack<Octree>();
         ArrayList<Bird> neighbors = new ArrayList<Bird>();
@@ -197,7 +197,7 @@ public class Octree
             // If T is a leaf, check if the elements in it lie in the radius
             if (T.isLeaf()) {
                 for (Bird a : T.birds) {
-                    if(get_distance(position, a.getPos()) < rad)
+                    if((b != a) && (get_distance(b.getPos(), a.getPos()) < rad))
                         neighbors.add(a);
                 }
             } else {
@@ -206,12 +206,12 @@ public class Octree
                     Octree C = T.children[i];
                     if (C.isLeaf()) {
                         for (Bird a : C.birds) {
-                            if(get_distance(position, a.getPos()) < rad)
+                            if((b != a) && (get_distance(b.getPos(), a.getPos()) < rad))
                                 neighbors.add(a);
                         }
-                    } else if (C.intersects(new Vector3f(position.x - ((float) rad/2),
-                                                         position.y - ((float) rad/2),
-                                                         position.z - ((float) rad/2)), rad)) {
+                    } else if (C.intersects(new Vector3f(b.getPos().x - ((float) rad/2),
+                                                         b.getPos().y - ((float) rad/2),
+                                                         b.getPos().z - ((float) rad/2)), rad)) {
                         s.push(C);
                     }
                 }
