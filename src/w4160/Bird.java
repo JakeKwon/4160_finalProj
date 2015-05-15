@@ -25,6 +25,9 @@ public class Bird {
     private float acceleration;
     private float size;
     private Sphere sphere;
+    private Body a;
+    private LWing lw;
+    private RWing rw;
 
     public Bird(Vector3f in_position, float in_size, float in_velocity, Vector3f in_direction) {
         position = new Vector3f(in_position);
@@ -34,17 +37,22 @@ public class Bird {
         in_direction.normalise(direction);
         sphere = new Sphere();
         acceleration = 0.000f;
+        a = new Body();
+        lw = new LWing(); 
+        rw = new RWing();
     }
-
+    
     public Bird(Bird b) {
         this(b.getPos(), b.getSize(), b.getVel(), b.getDir());
     }
 
     public void Draw() {
         GL11.glPushMatrix();
-        GL11.glTranslatef(this.position.x, this.position.y, this.position.z);
-        GL11.glColor3f(1.0f, 1.0f, 0.0f);
-        sphere.draw(size, 40, 40);
+        a.draw(new Vector3f(0, 0, 0), 1);
+        rw.flap();
+        lw.flap();
+        lw.draw(new Vector3f(0, 0, 0), 1);
+        rw.draw(new Vector3f(0, 0, 0), 1);
         GL11.glPopMatrix();
     }
 

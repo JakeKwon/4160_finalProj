@@ -3,7 +3,7 @@ package w4160;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
-public class Bird {
+public class Ori_Bird {
 	
 	Body a = new Body();
 	LWing lw = new LWing(); 
