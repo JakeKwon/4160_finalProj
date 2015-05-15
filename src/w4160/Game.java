@@ -37,7 +37,8 @@ public class Game {
     public boolean closeRequested = false;
 
     long lastFrameTime; // used to calculate delta
-    
+    boolean onclick = false;
+
     ArrayList<Bird> birds;
     Octree octree;
     Sky sky;
@@ -172,7 +173,7 @@ public class Game {
     }
 
     private void genRandBirds() {
-        for(int i=0; i < 200; i++) {
+        for(int i=0; i < 500; i++) {
             Vector3f a1 = new Vector3f(randFloat(OCT_SIZE/2 - 200, OCT_SIZE/2 + 200),
                                         randFloat(OCT_SIZE/2 - 200, OCT_SIZE/2 + 200),
                                          randFloat(OCT_SIZE/2 - 200, OCT_SIZE/2 + 200));
@@ -183,6 +184,20 @@ public class Game {
             octree.insert(newBird);
         }
     }
+
+    private void genBirdsPos(int posX, int posY, int posZ) {
+        
+        Vector3f a1 = new Vector3f(posX,posY,posZ);
+        Vector3f a1_dir = new Vector3f((float)Math.cos(Camera.getRotationY()),
+                (float)Math.tan(Camera.getRotationX()),
+                (float)Math.sin(Camera.getRotationY())
+                 );
+        Bird b = new Bird(a1, AST_SIZE, 0.5f, a1_dir);
+        Bird newBird = new Bird(b);
+        birds.add(newBird);
+        octree.insert(newBird);                
+    }
+    
 
     private float randFloat(float min, float max) {
         Random rand = new Random();
@@ -225,6 +240,25 @@ public class Game {
         //
         sky.Draw();
         //octree.Draw(1f, 0f, 0f);
+        
+        if(Mouse.isButtonDown(0)){
+            if(onclick==false){
+                // genRandAsteroids();
+                //GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, modelview);
+                if((0 <= Camera.getX()) &&
+                    (Camera.getX()<=800) &&
+                    (0<=Camera.getY()) &&
+                    (Camera.getY()<=800) &&
+                    (0<=Camera.getZ()) &&
+                    (Camera.getZ()<=800)
+                    )
+                genBirdsPos((int)(Camera.getX()), (int)(Camera.getY()), (int)(Camera.getZ()) );
+                
+                onclick = true;
+            }
+        }else{
+            onclick = false;
+        }
 
         // Apply shaders
 		if(GShader){ //using geometry shader
