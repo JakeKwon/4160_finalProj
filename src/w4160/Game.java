@@ -175,8 +175,8 @@ public class Game {
     private void genRandBirds() {
         for(int i=0; i < 500; i++) {
             Vector3f a1 = new Vector3f(randFloat(0, OCT_SIZE),
-                                        randFloat(0, OCT_SIZ),
-                                         randFloat(0, OCT_SIZ));
+                                        randFloat(0, OCT_SIZE),
+                                         randFloat(0, OCT_SIZE));
             Vector3f a1_dir = new Vector3f(randFloat(-1,1),randFloat(-1, 1),randFloat(-1, 1));
 			Bird b = new Bird(a1, AST_SIZE, 2f, a1_dir);
 			Bird newBird = new Bird(b);
