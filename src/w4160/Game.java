@@ -180,13 +180,13 @@ public class Game {
 
         Camera.apply();
 
-        // Apply shaders
-        birdShader.begin();
-        GL20.glUniform1i(texturLoc, 0);
-
         //
         sky.Draw();
         octree.Draw(1f, 0f, 0f);
+
+        // Apply shaders
+        birdShader.begin();
+        GL20.glUniform1i(texturLoc, 0);
         for (Bird a : birds) {
             a.Draw();
         } 
