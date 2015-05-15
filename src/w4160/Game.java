@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
 
+import java.nio.FloatBuffer;
 import java.nio.ByteBuffer;
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +21,13 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL40;
 import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -35,6 +43,9 @@ public class Game {
     Sky sky;
     Player player;
 
+    ShaderProgram birdShader;
+    int texturLoc;
+
     static final float AST_SIZE = 2f;
 
     public void run() {
@@ -42,6 +53,13 @@ public class Game {
         createWindow();
         getDelta(); // Initialise delta timer
         initGL();
+
+        // Set up shaders
+        initShaders();
+        texturLoc = GL20.glGetUniformLocation(birdShader.program, "bird");
+        Utilities.loadTexture("HUMBIRD1.jpg", GL13.GL_TEXTURE0);
+
+        // Set up initial objects (birds)
         initObjects();
         
         while (!closeRequested) {
@@ -74,6 +92,21 @@ public class Game {
         GL11.glEnable(GL11.GL_DEPTH_TEST); // Enables Depth Testing
         GL11.glDepthFunc(GL11.GL_LEQUAL); // The Type Of Depth Test To Do
         GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST); // Really Nice Perspective Calculations
+        
+        // For shading
+        FloatBuffer position0 = BufferUtils.createFloatBuffer(4);
+        position0.put(new float[] { 30.0f, 30.0f, 30.0f, 0.0f});
+        position0.flip(); 
+        
+        FloatBuffer diffuse = BufferUtils.createFloatBuffer(4);
+        diffuse.put(new float[] { 0.8f, 0.8f, 0.8f, 1f });
+        diffuse.flip();
+
+        GL11.glLight(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, diffuse);
+        GL11.glLight(GL11.GL_LIGHT0, GL11.GL_POSITION, position0);
+        
+        GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+
         Camera.create();
     }
 
@@ -87,12 +120,28 @@ public class Game {
         genRandBirds();
     }
 
+    private void initShaders() {
+         String asteroid_vertex_shader = Utilities.LoadGLSL("glsl/bird.vert");
+        
+         String asteroid_fragment_shader = Utilities.LoadGLSL("glsl/bird.frag");
+         
+         String asteroid_geometry_shader = Utilities.LoadGLSL("glsl/bird2.geom");
+
+        try {
+            //shader = new ShaderProgram(vertex_shader, fragment_shader);
+            birdShader = new ShaderProgram(asteroid_vertex_shader, asteroid_fragment_shader, asteroid_geometry_shader);
+        } catch (LWJGLException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
     private void genRandBirds() {
         for(int i=0; i < 4; i++) {
             Vector3f a1 = new Vector3f(randFloat(0,99),randFloat(0,99),randFloat(0,99));
             Vector3f a1_to_player = new Vector3f();
             Vector3f.sub(player.getPos(), a1, a1_to_player);
-            octree.insert(new Bird(a1, AST_SIZE, 0.1f, a1_to_player));
+            octree.insert(new Bird(a1, AST_SIZE, 0.0f, a1_to_player));
         }
     }
 
@@ -131,11 +180,19 @@ public class Game {
 
         Camera.apply();
 
+        // Apply shaders
+        birdShader.begin();
+        GL20.glUniform1i(texturLoc, 0);
+
+        //
         sky.Draw();
         octree.Draw(1f, 0f, 0f);
         for (Bird a : birds) {
             a.Draw();
-        }   
+        } 
+
+        birdShader.end();
+        //  
     }
 
     /**

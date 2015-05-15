@@ -25,9 +25,9 @@ public class Bird {
     private float acceleration;
     private float size;
     private Sphere sphere;
-    private Body a;
-    private LWing lw;
-    private RWing rw;
+    public Body body;
+    public LWing lwing;
+    public RWing rwing;
 
     public Bird(Vector3f in_position, float in_size, float in_velocity, Vector3f in_direction) {
         position = new Vector3f(in_position);
@@ -37,26 +37,47 @@ public class Bird {
         in_direction.normalise(direction);
         sphere = new Sphere();
         acceleration = 0.000f;
-        a = new Body();
-        lw = new LWing(); 
-        rw = new RWing();
+        body = new Body();
+        lwing = new LWing(); 
+        rwing = new RWing();
     }
-    
+
+    public Bird(Vector3f in_position, float in_size, float in_velocity, Vector3f in_direction, Body in_body, LWing in_lwing, RWing in_rwing) {
+        position = new Vector3f(in_position);
+        size = in_size;
+        direction = new Vector3f();
+        velocity = in_velocity;
+        in_direction.normalise(direction);
+        sphere = new Sphere();
+        acceleration = 0.000f;
+        body = in_body;
+        lwing = in_lwing; 
+        rwing = in_rwing;
+    }
+
+
     public Bird(Bird b) {
-        this(b.getPos(), b.getSize(), b.getVel(), b.getDir());
+        this(b.getPos(), b.getSize(), b.getVel(), b.getDir(), b.body, b.lwing, b.rwing);
     }
 
     public void Draw() {
         GL11.glPushMatrix();
-        a.draw(new Vector3f(0, 0, 0), 1);
-        rw.flap();
-        lw.flap();
-        lw.draw(new Vector3f(0, 0, 0), 1);
-        rw.draw(new Vector3f(0, 0, 0), 1);
+        GL11.glTranslatef(this.position.x, this.position.y, this.position.z);
+        //GL11.glRotatef((float) Math.toDegrees(Math.atan(direction.z/direction.y)), 1f, 0f, 0f);
+        GL11.glRotatef((float) Math.toDegrees(Math.atan(direction.x/direction.z)), 0f, 1f, 0f);
+        //GL11.glRotatef((float) Math.toDegrees(Math.atan(direction.y/direction.x)), 0f, 0f, 1f);
+        GL11.glTranslatef(-this.position.x, -this.position.y, -this.position.z);
+        GL11.glTranslatef(this.position.x, this.position.y, this.position.z);
+        
+        body.draw(new Vector3f(0, 0, 0), 1);
+        lwing.draw(new Vector3f(0, 0, 0), 1);
+        rwing.draw(new Vector3f(0, 0, 0), 1);
         GL11.glPopMatrix();
     }
 
     public void Move() {
+        rwing.flap();
+        lwing.flap();
         position.x += velocity * direction.x;
         position.y += velocity * direction.y;
         position.z += velocity * direction.z;
