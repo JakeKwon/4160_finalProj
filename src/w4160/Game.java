@@ -30,7 +30,7 @@ public class Game {
 
     long lastFrameTime; // used to calculate delta
     
-    ArrayList<Asteroid> asteroids;
+    ArrayList<Bird> birds;
     Octree octree;
     Sky sky;
     Player player;
@@ -50,6 +50,7 @@ public class Game {
             renderGL();
 
             Display.update();
+            //break;
         }
         
         cleanup();
@@ -77,61 +78,21 @@ public class Game {
     }
 
     private void initObjects() {
-        asteroids = new ArrayList<Asteroid>();
+        birds = new ArrayList<Bird>();
         octree = new Octree(new Vector3f(0, 0, 0), 100);
-        sky = new Sky(new Vector3f(50,50,50), 50); // Grey Cube
+        sky = new Sky(new Vector3f(50,50,50), 51); // Yellow Cube
         player = new Player(new Vector3f(50,1,50));
         Camera.setPos(player.getPos());
 
-        genRandAsteroids();
+        genRandBirds();
     }
 
-    private void genAsteroids() {
-        // Asteroid Positions & Directions
-        Vector3f a1 = new Vector3f(0,100,100);
-        Vector3f a1_to_player = new Vector3f();
-        Vector3f.sub(player.getPos(), a1, a1_to_player);
-
-        Vector3f a2 = new Vector3f(0,100,0);
-        Vector3f a2_to_player = new Vector3f();
-        Vector3f.sub(player.getPos(), a2, a2_to_player);
-
-        Vector3f a3 = new Vector3f(100,100,0);
-        Vector3f a3_to_player = new Vector3f();
-        Vector3f.sub(player.getPos(), a3, a3_to_player);
-
-        Vector3f a4 = new Vector3f(100,100,100);
-        Vector3f a4_to_player = new Vector3f();
-        Vector3f.sub(player.getPos(), a4, a4_to_player);
-
-        // Put astroids into octree
-        octree.insert(new Asteroid(a1, AST_SIZE, 0.1f, a1_to_player));
-        octree.insert(new Asteroid(a2, AST_SIZE, 0.2f, a2_to_player));
-        octree.insert(new Asteroid(a3, AST_SIZE, 0.3f, a3_to_player));
-        octree.insert(new Asteroid(a4, AST_SIZE, 0.4f, a4_to_player));
-    }
-
-    private void genTestAsteroids() {
-        // Asteroid Positions & Directions
-        Vector3f a1 = new Vector3f(60,60,60);
-        Vector3f a1_to_player = new Vector3f();
-        Vector3f.sub(player.getPos(), a1, a1_to_player);
-
-        Vector3f a2 = new Vector3f(80,80,80);
-        Vector3f a2_to_player = new Vector3f();
-        Vector3f.sub(player.getPos(), a2, a2_to_player);
-
-        // Put astroids into octree
-        octree.insert(new Asteroid(a1, AST_SIZE, 0f, a1_to_player));
-        octree.insert(new Asteroid(a2, AST_SIZE, 0f, a2_to_player));
-    }
-
-    private void genRandAsteroids() {
+    private void genRandBirds() {
         for(int i=0; i < 4; i++) {
-            Vector3f a1 = new Vector3f(randFloat(0,99),99,randFloat(0,99));
+            Vector3f a1 = new Vector3f(randFloat(0,99),randFloat(0,99),randFloat(0,99));
             Vector3f a1_to_player = new Vector3f();
             Vector3f.sub(player.getPos(), a1, a1_to_player);
-            octree.insert(new Asteroid(a1, AST_SIZE, 0.05f, a1_to_player));
+            octree.insert(new Bird(a1, AST_SIZE, 0.1f, a1_to_player));
         }
     }
 
@@ -141,22 +102,23 @@ public class Game {
     }
     
     private void updateLogic(int delta) {
-        // Check if Asteroids hit the player
-        ArrayList<Asteroid> hit;
-        hit = octree.get_inRange(player.getPos(), 2);
-
-        // Move Asteroids and
+        // Move Birds and
         // reinsert them to the octree
-        asteroids.clear();
-        octree.get_elements(asteroids);
-        octree.clear();
-        for (Asteroid a : asteroids) {
-            a.Move();
-            if (!hit.contains(a))
-                octree.insert(a);
-            else
-                System.out.println(player.damage());
+        birds.clear();
+        octree.get_elements(birds);
+        Octree newOctree = new Octree(octree);
+
+        for (Bird a : birds) {
+            // Apply behavior and move bird
+            //Util.cohesion(a, octree.get_inRange(a.getPos(), 5));
+            Bird newBird = new Bird(a);
+            newBird.Move();
+            newOctree.insert(newBird);
         }
+        octree = null;
+        octree = newOctree;
+        birds.clear();
+        octree.get_elements(birds);
         //octree.traverse();
     }
 
@@ -169,11 +131,11 @@ public class Game {
 
         Camera.apply();
 
-        //sky.Draw();
+        sky.Draw();
         octree.Draw(1f, 0f, 0f);
-        for (Asteroid a : asteroids) {
+        for (Bird a : birds) {
             a.Draw();
-        }
+        }   
     }
 
     /**
@@ -246,6 +208,7 @@ public class Game {
             Display.setVSyncEnabled(true);
             Display.setTitle(windowTitle);
             Display.create();
+            // Disable mouse cursor
             Mouse.setGrabbed(true);
         } catch (LWJGLException e) {
             Sys.alert("Error", "Initialization failed!\n\n" + e.getMessage());

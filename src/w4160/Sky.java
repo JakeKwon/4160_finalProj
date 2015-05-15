@@ -32,41 +32,36 @@ public class Sky {
         GL11.glTranslatef(this.position.x, this.position.y, this.position.z);
 
         // Set to wireframe
-        // GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK,GL11.GL_LINE);
+        GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK,GL11.GL_LINE);
+        GL11.glColor3f(1.0f, 1.0f, 0.0f);
 
         GL11.glBegin(GL11.GL_QUADS);
 
-        GL11.glColor3f(0.2f, 0.2f, 0.2f);
         GL11.glVertex3f(size*1.0f , size*1.0f , size*-1.0f);
         GL11.glVertex3f(size*-1.0f, size*1.0f , size*-1.0f);
         GL11.glVertex3f(size*-1.0f, size*1.0f , size*1.0f );
         GL11.glVertex3f(size*1.0f , size*1.0f , size*1.0f );
 
-        GL11.glColor3f(0.1f, 0.1f, 0.1f);
         GL11.glVertex3f(size*1.0f , size*-1.0f, size*1.0f );
         GL11.glVertex3f(size*-1.0f, size*-1.0f, size*1.0f );
         GL11.glVertex3f(size*-1.0f, size*-1.0f, size*-1.0f);
         GL11.glVertex3f(size*1.0f , size*-1.0f, size*-1.0f);
 
-        GL11.glColor3f(0.3f, 0.3f, 0.3f);
         GL11.glVertex3f(size*1.0f , size*1.0f , size*1.0f );
         GL11.glVertex3f(size*-1.0f, size*1.0f , size*1.0f );
         GL11.glVertex3f(size*-1.0f, size*-1.0f, size*1.0f );
         GL11.glVertex3f(size*1.0f , size*-1.0f, size*1.0f );
 
-        GL11.glColor3f(0.4f, 0.4f, 0.4f);
         GL11.glVertex3f(size*1.0f , size*-1.0f, size*-1.0f);
         GL11.glVertex3f(size*-1.0f, size*-1.0f, size*-1.0f);
         GL11.glVertex3f(size*-1.0f, size*1.0f , size*-1.0f);
         GL11.glVertex3f(size*1.0f , size*1.0f , size*-1.0f);
 
-        GL11.glColor3f(0.5f, 0.5f, 0.5f);
         GL11.glVertex3f(size*-1.0f, size*1.0f , size*1.0f );
         GL11.glVertex3f(size*-1.0f, size*1.0f , size*-1.0f);
         GL11.glVertex3f(size*-1.0f, size*-1.0f, size*-1.0f);
         GL11.glVertex3f(size*-1.0f, size*-1.0f, size*1.0f );
 
-        GL11.glColor3f(0.6f, 0.6f, 0.6f);
         GL11.glVertex3f(size*1.0f , size*1.0f , size*-1.0f);
         GL11.glVertex3f(size*1.0f , size*1.0f , size*1.0f );
         GL11.glVertex3f(size*1.0f , size*-1.0f, size*1.0f );
@@ -75,7 +70,7 @@ public class Sky {
         GL11.glEnd();
 
         // Set back to fill
-        // GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK,GL11.GL_FILL);
+        GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK,GL11.GL_FILL);
 
         GL11.glPopMatrix();
     }

@@ -29,7 +29,7 @@ public class Octree
     private int MAX_LEVELS = 30;
 
     private int level;
-    private ArrayList<Asteroid> asteroids;
+    private ArrayList<Bird> birds;
     private Octree[] children;
 
     private Vector3f origin;
@@ -43,13 +43,22 @@ public class Octree
         this(0, in_origin, in_size, "#");
     }
 
+    /*
+     * Copy Constructor
+     * Will not copy the elements in the octree.
+     */
+    public Octree(Octree o) {
+        this(0, o.origin, o.size, "#");
+    }
+
+
 
     /*
      * Constructor
      */
     private Octree(int in_level, Vector3f in_origin, float in_size, String in_index) {
         this.level = in_level;
-        this.asteroids = new ArrayList<Asteroid>();
+        this.birds = new ArrayList<Bird>();
         this.origin = new Vector3f(in_origin);
         this.children = new Octree[8];
         this.size = in_size;
@@ -60,8 +69,8 @@ public class Octree
      * Get all the elements in the octree and store in objects.
      * This includes the elements of all its subtrees.
     */
-    void get_elements(ArrayList<Asteroid> objects) {
-        for(Asteroid a : asteroids)
+    void get_elements(ArrayList<Bird> objects) {
+        for(Bird a : birds)
             objects.add(a);
         if (children[0] != null)
             for (int i = 0; i < children.length; i++)
@@ -72,7 +81,7 @@ public class Octree
     * Clears the octree
     */
     public void clear() {
-        asteroids.clear();
+        birds.clear();
         if (children[0] != null)
             for (int i = 0; i < children.length; i++) {
                 children[i].clear();
@@ -134,9 +143,9 @@ public class Octree
     /*
     * Insert the asteroid into the octree. 
     * If the child doesn't have space, it will split
-    * and all of its asteroids to its own children.
+    * and all of its birds to its own children.
     */
-    public void insert(Asteroid ast) {
+    public void insert(Bird ast) {
         Vector3f position = ast.getPos();
 
         /*
@@ -158,26 +167,26 @@ public class Octree
             return;
         }
 
-        asteroids.add(ast);
+        birds.add(ast);
 
         // If octree exceeds capacity
-        if (asteroids.size() > MAX_OBJECTS && level < MAX_LEVELS) {
+        if (birds.size() > MAX_OBJECTS && level < MAX_LEVELS) {
             split();
-            for (Asteroid a : asteroids) {
+            for (Bird a : birds) {
                 int index = getIndex(a.getPos());
                 children[index].insert(a);
             }
-            asteroids.clear();
+            birds.clear();
         }
     }
 
     /*
         Gets all neighbors of element c in the radius rad.
     */
-    public ArrayList<Asteroid> get_inRange(Vector3f position, float rad) {
+    public ArrayList<Bird> get_inRange(Vector3f position, float rad) {
         // Maintain a stack of all octrees whose elements will be compared
         Stack<Octree> s = new Stack<Octree>();
-        ArrayList<Asteroid> neighbors = new ArrayList<Asteroid>();
+        ArrayList<Bird> neighbors = new ArrayList<Bird>();
 
         // Push root onto stack
         s.push(this);
@@ -187,7 +196,7 @@ public class Octree
 
             // If T is a leaf, check if the elements in it lie in the radius
             if (T.isLeaf()) {
-                for (Asteroid a : T.asteroids) {
+                for (Bird a : T.birds) {
                     if(get_distance(position, a.getPos()) < rad)
                         neighbors.add(a);
                 }
@@ -196,7 +205,7 @@ public class Octree
                 for(int i=0; i < T.children.length; i++) {
                     Octree C = T.children[i];
                     if (C.isLeaf()) {
-                        for (Asteroid a : C.asteroids) {
+                        for (Bird a : C.birds) {
                             if(get_distance(position, a.getPos()) < rad)
                                 neighbors.add(a);
                         }
@@ -220,12 +229,12 @@ public class Octree
     }
 
     /*
-     * Traverse tree and print out asteroids with what level they are at.
+     * Traverse tree and print out birds with what level they are at.
      * Mainly for testing.
      */
     public void traverse() {
         // print out elements
-        for(Asteroid a : asteroids) {
+        for(Bird a : birds) {
             System.out.print(a);
             System.out.println(" at Index: " + index);
             System.out.println(" at Level: " + level);
