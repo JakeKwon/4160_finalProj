@@ -133,10 +133,10 @@ public class Game {
     }
 
     private void genRandBirds() {
-        for(int i=0; i < 10; i++) {
-            Vector3f a1 = new Vector3f(randFloat(OCT_SIZE/2 - 100, OCT_SIZE/2 + 100),
-                                        randFloat(OCT_SIZE/2 - 100, OCT_SIZE/2 + 100),
-                                         randFloat(OCT_SIZE/2 - 100, OCT_SIZE/2 + 100));
+        for(int i=0; i < 200; i++) {
+            Vector3f a1 = new Vector3f(randFloat(OCT_SIZE/2 - 200, OCT_SIZE/2 + 200),
+                                        randFloat(OCT_SIZE/2 - 200, OCT_SIZE/2 + 200),
+                                         randFloat(OCT_SIZE/2 - 200, OCT_SIZE/2 + 200));
             Vector3f a1_dir = new Vector3f(randFloat(-1,1),randFloat(-1, 1),randFloat(-1, 1));
             octree.insert(new Bird(a1, AST_SIZE, 2f, a1_dir));
         }
@@ -156,8 +156,8 @@ public class Game {
 
         for (Bird a : birds) {
             // Apply behavior and move bird
-            BoidUtil.cohesion(a, octree.get_inRange(a, 150), 8);
-            BoidUtil.alignment(a, octree.get_inRange(a, 100), 10);
+            BoidUtil.cohesion(a, octree.get_inRange(a, 150), 10);
+            BoidUtil.alignment(a, octree.get_inRange(a, 100), 15);
             BoidUtil.seperation(a, octree.get_inRange(a, 50), 15);
             BoidUtil.reset(a, OCT_SIZE, OCT_SIZE, OCT_SIZE);
             Bird newBird = new Bird(a);
