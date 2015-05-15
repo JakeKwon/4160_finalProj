@@ -103,22 +103,22 @@ public class Body {
 		for(Face face : body.faces){
 			//System.out.print(face.normal + "\n");
 			Vector3f n1 = body.normals.get((int) face.normal.x - 1);
-			GL11.glNormal3f(n1.x, n1.y, n1.z);
+			GL11.glNormal3f(n1.x, n1.z, n1.y);
 			Vector3f v1 = body.vertices.get((int) face.vertex.x - 1);
 			GL11.glVertex3f(v1.x, v1.y, v1.z);
 			Vector2f t1 = body.texCords.get((int) face.tex.x - 1);
 			GL11.glTexCoord2f(t1.x, t1.y);
 
 			Vector3f n2 = body.normals.get((int) face.normal.y - 1);
-			GL11.glNormal3f(n2.x, n2.y, n2.z);
-			Vector3f v2 = body.vertices.get((int) face.vertex.y - 1);
+			GL11.glNormal3f(n2.x, n2.z, n2.y);
+			Vector3f v2 = body.vertices.get((int) face.vertex.z - 1);
 			GL11.glVertex3f(v2.x, v2.y, v2.z);
 			Vector2f t2 = body.texCords.get((int) face.tex.y - 1);
 			GL11.glTexCoord2f(t2.x, t2.y);
 
 			Vector3f n3 = body.normals.get((int) face.normal.z - 1);
-			GL11.glNormal3f(n3.x, n3.y, n3.z);
-			Vector3f v3 = body.vertices.get((int) face.vertex.z - 1);
+			GL11.glNormal3f(n3.x, n3.z, n3.y);
+			Vector3f v3 = body.vertices.get((int) face.vertex.y - 1);
 			GL11.glVertex3f(v3.x, v3.y, v3.z);
 			Vector2f t3 = body.texCords.get((int) face.tex.z - 1);
 			GL11.glTexCoord2f(t3.x, t3.y);

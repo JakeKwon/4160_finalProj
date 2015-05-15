@@ -93,17 +93,17 @@ public class LWing {
 		for(Face face : lw.faces){
 			//System.out.print(face.normal + "\n");
 			Vector3f n1 = lw.normals.get((int) face.normal.x - 1);
-			GL11.glNormal3f(n1.x, n1.y, n1.z);
+			GL11.glNormal3f(n1.x, n1.z, n1.y);
 			Vector3f v1 = lw.vertices.get((int) face.vertex.x - 1);
 			GL11.glVertex3f(v1.x, v1.y, v1.z);
 
 			Vector3f n2 = lw.normals.get((int) face.normal.y - 1);
-			GL11.glNormal3f(n2.x, n2.y, n2.z);
+			GL11.glNormal3f(n2.x, n2.z, n2.y);
 			Vector3f v2 = lw.vertices.get((int) face.vertex.y - 1);
 			GL11.glVertex3f(v2.x, v2.y, v2.z);
 
 			Vector3f n3 = lw.normals.get((int) face.normal.z - 1);
-			GL11.glNormal3f(n3.x, n3.y, n3.z);
+			GL11.glNormal3f(n3.x, n3.z, n3.y);
 			Vector3f v3 = lw.vertices.get((int) face.vertex.z - 1);
 			GL11.glVertex3f(v3.x, v3.y, v3.z);
 		}
